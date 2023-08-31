@@ -40,7 +40,7 @@ Standardized datasets are hosted here: https://huggingface.co/HydraLM
 ## Plan
 
 Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures.
-Our objective is to achieve SOTA within the next 1-2 months and open-source all datasets, code, models of our most performant MoE.
+Our objective is to achieve SOTA performance within the next 1-2 months and open-source all datasets, code, models of our most performant MoE.
 
 ## Compute Requirements
 
