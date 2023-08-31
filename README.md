@@ -5,7 +5,7 @@
 </p>
 
 ## Mission
-Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
+A scalable, efficient and Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
 
 ## Description
 
