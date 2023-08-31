@@ -9,7 +9,7 @@ A scalable, efficient and Open Source Mixture of Experts (MoE) architecture to e
 
 ## Description
 
-Skunkworks OSS team introduces Hydra-MoE, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. We use low-cost training approaches such as instruct finetuning and (low rank adaptations to retain the benefits of the MoE architecture while producing a model that can run on commodity hardware. 
+Skunkworks OSS team introduces Hydra-MoE, an innovative Mixture of Experts (MoE) architecture that leverages LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. We use low-cost training approaches such as instruct finetuning and (low rank adaptations to retain the benefits of the MoE architecture while producing a model that can run on commodity hardware. 
 
 ## Project Status
 
