@@ -30,7 +30,7 @@ As part of the initiative, the team is exploring and has developed several archi
 In our POCs, these architectures have displayed potential for scaling any base model. These architectures are currently being trained on further data and will be scaled to larger sizes. We have also discovered several insights that we aim to publish for the community.
 
 ## Datasets
-Skunkworks community is collectively standardizing every high quality public and private Instruct data source to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources and over 1T tokens.
+Skunkworks community is collectively standardizing every high quality public and private Instruct data source to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources.
 We are collaborating with several academic and open source groups to expand the datasets further.
 We are also crafting new instruct datasets from high quality raw data sources.
 
