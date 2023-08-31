@@ -23,7 +23,7 @@ As part of the initiative, the team is exploring and has developed several archi
 3. E2E Gating Swappable-QLoRA experts MoE (c-BTM variant)
    - Same as above, but with more advanced Gating/Routing + Adapter Merging + End to End Training
 4. Switch-like MoE-QLoRAs (Switch Transformer variant)
-   - Switch Transformer adapted to leverage LoRAs as experts
+   - Switch Transformer adapted to leverage a pre-trained base and LoRAs as finetuned experts
 5. Switch-Llama (Switch Transformer variant)
    - Vanilla Switch Transformer w/ pretrained Llama2 base
 
