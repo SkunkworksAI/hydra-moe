@@ -60,12 +60,11 @@ We are training experts for the following domains:
 - Role-Playing
 
 ## Datasets
-Skunkworks community is collectively standardizing every high quality public and private Instruct data source to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources.
-We are collaborating with several academic and open source groups to expand the datasets further.
-We are also crafting new instruct datasets from high quality raw data sources.
+Skunkworks community is collecting, consolidating and standardizing high quality public and private Instruct data sources to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources covering all domains listed above.
+
+We are collaborating with several academic and open source groups (including Alignment Lab and members of Nous) to expand datasets further. We are also crafting new instruct datasets from high quality raw data sources.
 
 Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7LZ0ojDUzNFWMKcrPiQJ8Glh-GIFfB7Bksb60/edit?usp=sharing
-Standardized datasets are hosted here: https://huggingface.co/HydraLM
 
 ## Roadmap
 
