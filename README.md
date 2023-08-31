@@ -39,7 +39,7 @@ In our POCs, these architectures have displayed potential for scaling any base m
 
 ## Initial Expert Domains
 
-We have identified the following domains for the initial expert modules:
+We are training experts for the following domains:
 
 - Math 
 - Science (Physics, Chemistry, Biology..)
