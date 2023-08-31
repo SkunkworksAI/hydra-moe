@@ -69,7 +69,7 @@ We are training experts for the following domains:
 ## Datasets
 Skunkworks community is collecting, consolidating and standardizing high quality public and private Instruct data sources to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources covering all domains listed above.
 
-We are collaborating with several academic and open source groups (including Alignment Lab and members of Nous) to expand datasets further. We are also crafting new instruct datasets from high quality raw data sources.
+We are collaborating with several academic and open source groups (including <a href="https://twitter.com/alignment_lab" target="_blank">Alignment Lab</a> and members of Nous) to expand datasets further. We are also crafting new instruct datasets from high quality raw data sources.
 
 Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7LZ0ojDUzNFWMKcrPiQJ8Glh-GIFfB7Bksb60/edit?usp=sharing
 
@@ -88,7 +88,7 @@ This compute will help us scale our MoE experiments and the most performant MoE 
 
 ## Collaborations
 
-The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly with individuals, open-source groups (Alignment Lab), academics and companies to accelerate the development of our data pipeline and MoE architectures.
+The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly with individuals, open-source groups (<a href="https://twitter.com/alignment_lab" target="_blank">Alignment Lab</a>), academics and companies to accelerate the development of our data pipeline and MoE architectures.
 We welcome open source contributions to HydraLM! Please join our Discord for details.
 
 
@@ -115,18 +115,17 @@ Based on the results, MoE models not only outperform dense models in terms of in
 
 There are several other MoE architectures that achieve varying results but consistently display the ability to scale LMs including Branch-Train-Merge (BTM), Clustered-BTM (c-BTM), GLaM... All papers are listed below in related works.
 
-## Some related works
-- GLaM: Efficient Scaling of Language Models with Mixture-of-Experts
-- DEMix Layers: Disentangling Domains for Modular Language Modeling
-- Branch-Train-Merge: Embarrassingly Parallel Training of Expert Language Models
-- Scaling Expert Language Models with Unsupervised Domain Discovery
-- Soft Merging of Experts with Adaptive Routing
-- Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity
-- AdapterFusion: Non-Destructive Task Composition for Transfer Learning
-- Nearest Neighbor Zero-Shot Inference 
-- Eliciting and Understanding Cross-Task Skills with Task-Level Mixture-of-Experts
-- Mixture-of-Supernets: Improving Weight-Sharing Supernet Training with Architecture-Routed Mixture-of-Experts
-- Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints
-- AdaMix: Mixture-of-Adaptations for Parameter-efficient Model Tuning
-
+## Related works
+- <a href="https://arxiv.org/pdf/2112.06905.pdf" target="_blank">GLaM: Efficient Scaling of Language Models with Mixture-of-Experts</a>
+- <a href="https://arxiv.org/pdf/2108.05036.pdf" target="_blank">DEMix Layers: Disentangling Domains for Modular Language Modeling</a>
+- <a href="https://arxiv.org/pdf/2208.03306.pdf" target="_blank">Branch-Train-Merge: Embarrassingly Parallel Training of Expert Language Models</a>
+- <a href="https://arxiv.org/abs/2303.14177" target="_blank">Scaling Expert Language Models with Unsupervised Domain Discovery</a> 
+- <a href="https://arxiv.org/pdf/2306.03745.pdf" target="_blank">Soft Merging of Experts with Adaptive Routing</a> 
+- <a href="https://arxiv.org/abs/2101.03961" target="_blank">Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity</a> 
+- <a href="https://arxiv.org/pdf/2005.00247.pdf" target="_blank">AdapterFusion: Non-Destructive Task Composition for Transfer Learning</a> 
+- <a href="https://suchin.io/assets/knnprompt.pdf" target="_blank">Nearest Neighbor Zero-Shot Inference</a> 
+- <a href="https://arxiv.org/abs/2205.12701" target="_blank">Eliciting and Understanding Cross-Task Skills with Task-Level Mixture-of-Experts</a> 
+- <a href="https://arxiv.org/pdf/2306.04845.pdf" target="_blank">Mixture-of-Supernets: Improving Weight-Sharing Supernet Training with Architecture-Routed Mixture-of-Experts</a> 
+- <a href="https://arxiv.org/abs/2212.05055" target="_blank">Sparse Upcycling: Training Mixture-of-Experts from Dense Checkpoints</a> 
+- <a href="https://www.microsoft.com/en-us/research/uploads/prod/2022/05/Mixture_of_Adaptations_EMNLP_2022-2.pdf" target="_blank">AdaMix: Mixture-of-Adaptations for Parameter-efficient Model Tuning</a> 
 
