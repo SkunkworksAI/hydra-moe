@@ -108,6 +108,8 @@ Non-Exhaustive list of Contributors/Collaborators/Supporters:
 - <a href="https://twitter.com/Sentdex" target="_blank">Harrison K.</a>
 - <a href="https://github.com/thennal10" target="_blank">Premeditator</a>
 - <a href="https://twitter.com/ldjconfirmed" target="_blank">Luigi D.</a>
+- <a href="https://twitter.com/kranthigv" target="_blank">Kranthi</a>
+- <a href="https://huggingface.co/Neilbert" target="_blank">Neilbert</a>
 
 And many more. Full list of contributors will be posted soon.
 
