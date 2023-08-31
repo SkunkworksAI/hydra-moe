@@ -20,19 +20,19 @@ Skunkworks OSS team introduces HydraLM, a collection of innovative Mixture of Ex
 There is a tradeoff in dense language models between capabilities and inference time.
 
 <p align="center" width="100%">
-<a ><img src="imgs/triangle_of_success.png" alt="WizardLM" style="width: 20%; min-width: 300px; display: block; margin: auto;"></a>
+<a ><img src="imgs/triangle_of_success.png" alt="WizardLM" style="width: 90%; min-width: 300px; display: block; margin: auto;"></a>
 </p>
 
 To speed up inference, there is data or model parallelism. Alternatively, if we want to solve this problem without decreasing “efficiency”, i.e. how much GPU time you’re spending per inference, we would need a way to decouple inference FLOPs from model capabilities. Mixture of Experts are a class of sparse language models designed to perform this tradeoff at the cost of additional memory. In an MoE model, the linear layers of the model are replaced by a Gating Mechanism that routes to N experts.
 
 <p align="center" width="100%">
-<a ><img src="imgs/moe.png" alt="WizardLM" style="width: 20%; min-width: 300px; display: block; margin: auto;"></a>
+<a ><img src="imgs/moe.png" alt="WizardLM" style="width: 90%; min-width: 300px; display: block; margin: auto;"></a>
 </p>
 
 The Gating network’s job is to compute probabilities for each expert, per token. Then, at each token, k=1, 2, or 3 experts are selected and used for the MoE layer, with the results concatenated in the end. In practice, the tokens are split up (almost) evenly between the experts, and processed in sequence during the forward pass. By increasing the number of experts, the amount of memory that the model uses goes up, but the cost of inference stays exactly the same, since we haven’t changed the amount of computation done by the model during each foward pass. MoE is an architecture that allows us to make the tradeoff we wanted to make. But do the results of MoE models stack up to dense transformers? Given that they still have more parameters in total, can we expect better performance from MoE mdoels with a similar number of inference FLOPs? In the original MoE paper from 2017, the authors use RNNs. But since RNNs are old, we will compare the results from the Switch Transformer paper from 2021, where the Google authors use the T5 architecture.
 
 <p align="center" width="100%">
-<a ><img src="imgs/graph.png" alt="WizardLM" style="width: 20%; min-width: 300px; display: block; margin: auto;"></a>
+<a ><img src="imgs/graph.png" alt="WizardLM" style="width: 90%; min-width: 300px; display: block; margin: auto;"></a>
 </p>
 
 Based on the results, MoE models not only outperform dense models in terms of inference FLOPs, they also punch above their weight class: Switch-Base achieves lower perplexity on C4 than T5-Large while using 30% the FLOPs and 10x the parameters, while Switch-Large is competitive with T5-XXL with 6% the FLOPs and 2.5x the parameters.
