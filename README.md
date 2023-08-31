@@ -43,7 +43,12 @@ We have designed and developed several MoE architectures which have achieved pro
    - adapted to leverage a pre-trained base and LoRAs as finetuned experts
 
 
-In our POCs, these architectures have displayed potential for scaling any base model. These architectures are currently being trained on further data and will be scaled to larger sizes. We have also discovered several insights that we aim to publish for the community.
+These architectures are currently being trained on further data and will be scaled to larger sizes. 
+Early results indicate our MoE architectures outperform base model across several benchmarks.
+
+## Evaluation Criteria
+
+We evaluate Hydra-MoEs using the LM-Evaluation-Harness, Fast-Eval and human evaluations in order to compare capabilities to the base model leveraged by the MoE. Key evaluation metrics are perplexity, accuracy on downstream tasks, and human evaluations.
 
 ## Initial Expert Domains
 
@@ -67,15 +72,17 @@ We are collaborating with several academic and open source groups (including Ali
 Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7LZ0ojDUzNFWMKcrPiQJ8Glh-GIFfB7Bksb60/edit?usp=sharing
 
 ## Roadmap
+In less 2 weeks (in July), our community came together to build a viable OSS MoE. Since then, we've been expanding our experiments, improving designs, implementing new archs, performing sweeps, optimizing code and evaluating models. 
 
-Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures.
-Our objective is to achieve SOTA performance within the next months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
+Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures. Our objective is to achieve SOTA performance within the next 1-2 months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
+
+## Release Plan
+We open-source everything. Currently, all of our datasets and trained experts are open-sourced on the HydraLM HF repo. We will first open-source (2-4 weeks) the training/inference infrastructure for anyone to easily and rapidly build their own Hydra-MoE with custom data. We aim to continuously open-source more advanced architectures as we scale and validate them.
 
 ## Compute Requirements
 
 Skunkworks team is currently seeking supporters/sponsors to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
 This compute will help us scale our MoE experiments and the most performant MoE architecture to GPT-4 level performance.
-
 
 ## Collaborations
 
