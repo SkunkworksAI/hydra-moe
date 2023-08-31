@@ -33,18 +33,20 @@ We have designed and developed several MoE architectures which have achieved pro
    - Dynamic swapping of QLoRA Experts at inference through similarity and classifier based methods
    - Weighted-average merging of experts with base model at inference
      
-2. Hydra-β: End-2-End MoE-QLoRA
+2. Hydra-β: End-to-End MoE-QLoRA
    - An Extension to Hydra-α with better Gating, merging and an E2E training method
    - Expert merging through TIES merging and other methods
-   - End to End Training of gating/routing functions with exotic loss/reward functions
+   - End-to-End Training of gating/routing functions with exotic loss/reward functions
 
 3. Hydra-γ: Switch-MoE-QLoRA
-   - Switch Transformer Inspired
-   - adapted to leverage a pre-trained base and LoRAs as finetuned experts
+   - Switch Transformer Inspired 
+   - End-to-End finetuning approach
+   - Frozen pre-trained base
+   - Token-wise routing function with LoRA experts
+   - Stable routing: Auxiliary loss to penalize high variance between experts, and Z-Loss to reduce expert logits
 
-
-These architectures are currently being trained on further data and will be scaled to larger sizes. 
-Early results indicate our MoE architectures outperform base model across several benchmarks.
+These architectures are currently being trained on further data and scaled to larger sizes. 
+Early results indicate our MoE architectures outperform base model across several benchmarks. These results are currently being validated/replicated before being published.
 
 ## Evaluation Criteria
 
