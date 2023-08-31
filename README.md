@@ -92,21 +92,21 @@ The Skunkworks community is comprised of hundreds of the top minds in OSS AI. Th
 We welcome open source contributions to HydraLM! Please join our Discord for details.
 
 Core Team:
--<a href="https://twitter.com/far__el" target="_blank">Farouk E.</a>
--<a href="https://twitter.com/prateeky2806" target="_blank">Prateek Y.</a>
--<a href="https://twitter.com/sumo_43" target="_blank">Artem M.</a>
--<a href="https://twitter.com/propback_" target="_blank">Alpay A.</a>
+- <a href="https://twitter.com/far__el" target="_blank">Farouk E.</a>
+- <a href="https://twitter.com/prateeky2806" target="_blank">Prateek Y.</a>
+- <a href="https://twitter.com/sumo_43" target="_blank">Artem M.</a>
+- <a href="https://twitter.com/propback_" target="_blank">Alpay A.</a>
 
 Non-Exhaustive list of Contributors/Collaborators/Supporters:
--<a href="https://twitter.com/Yampeleg" target="_blank">Yam P.</a>
--<a href="https://twitter.com/alignment_lab" target="_blank">Alignment Lab</a>
--<a href="https://twitter.com/Teknium1" target="_blank">Teknium</a>
--<a href="https://twitter.com/intrstllrninja" target="_blank">interstellarninja</a>
--<a href="https://twitter.com/jeremyphoward" target="_blank">Jeremy H.</a>
--<a href="https://twitter.com/TheSlavant" target="_blank">Yaroslav</a>
--<a href="https://twitter.com/winglian" target="_blank">Caseus</a>
--<a href="https://github.com/thennal10" target="_blank">Premeditator</a>
--<a href="https://twitter.com/ldjconfirmed" target="_blank">Luigi D.</a>
+- <a href="https://twitter.com/Yampeleg" target="_blank">Yam P.</a>
+- <a href="https://twitter.com/alignment_lab" target="_blank">Alignment Lab</a>
+- <a href="https://twitter.com/Teknium1" target="_blank">Teknium</a>
+- <a href="https://twitter.com/intrstllrninja" target="_blank">interstellarninja</a>
+- <a href="https://twitter.com/jeremyphoward" target="_blank">Jeremy H.</a>
+- <a href="https://twitter.com/TheSlavant" target="_blank">Yaroslav</a>
+- <a href="https://twitter.com/winglian" target="_blank">Caseus</a>
+- <a href="https://github.com/thennal10" target="_blank">Premeditator</a>
+- <a href="https://twitter.com/ldjconfirmed" target="_blank">Luigi D.</a>
 
 And many more. Full list of contributors will be posted soon.
 
