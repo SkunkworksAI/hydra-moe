@@ -71,7 +71,8 @@ Our MoE initiative is bottlenecked by compute. We are currently seeking supporte
 
 ## Collaborations
 
-The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly  with  
+The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly with individuals, open-source groups (Alignment Lab), academics and companies to accelerate the development of our data pipeline and MoE architectures.
+We welcome open source contributions to HydraLM! Please join our Discord for details.
 
 
 ## Background on MoE
