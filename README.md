@@ -20,7 +20,7 @@ This project has completed POC stage and is currently training, optimizing, eval
 Our objectives for this project are:
 - Enhance Llama-2 (or any base model) capabilities closer to GPT-4 level performance through MoE architecture
 - Serve as an exhaustive open source attempt to validate MoE techniques for large language models 
-- Release open source an effective MoE model and framework for scaling capabilities of LLMs
+- Release open source and effective MoE models, framework and infrastructure for scaling capabilities of any LLMs.
 
 ## Our Architectures
 
