@@ -105,6 +105,7 @@ Non-Exhaustive list of Contributors/Collaborators/Supporters:
 - <a href="https://twitter.com/jeremyphoward" target="_blank">Jeremy H.</a>
 - <a href="https://twitter.com/TheSlavant" target="_blank">Yaroslav</a>
 - <a href="https://twitter.com/winglian" target="_blank">Caseus</a>
+- <a href="https://twitter.com/Sentdex" target="_blank">Harrison K.</a>
 - <a href="https://github.com/thennal10" target="_blank">Premeditator</a>
 - <a href="https://twitter.com/ldjconfirmed" target="_blank">Luigi D.</a>
 
