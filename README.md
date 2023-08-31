@@ -1,21 +1,20 @@
-## Hydra-MoE: Open-Source Mixture of Experts
+## Hydra-MoE: A new class of Open-Source Mixture of Experts
 
 <p align="center">
 🤗 <a href="https://huggingface.co/HydraLM" target="_blank">HF Repo</a> • 🐦 <a href="https://twitter.com/skunkworks_ai" target="_blank">Twitter</a> • ⚡ <a href="https://github.com/hydrallm" target="_blank">Github</a> • 👋 Join our <a href="discord.gg/bNKsa8gE2y" target="_blank">Discord</a> <br>
 </p>
 
 ## Mission
-Develop an effective Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
+Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
 
 ## Current Status
 Several MoE architectures developed. Currently training, optimizing and evaluating. We are also exploring more MoE arch designs based on insights gathered from our collective experiments.
 
-## Description
+## Hydra-MoE Details
 
-Skunkworks OSS team introduces HydraLM, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. The use of techniques such as Low Rank Adaptation (LoRAs) and 4-bit quantized finetuning (QLoRA) has allowed for the finetuning of open source large language models such as LLaMA and Falcon on domain-specific instruction following datasets for a fraction of the cost of a full finetune with minimal/no degradation. LoRAs are leveraged by current SOTA open-source models. We leverage LoRAs/QLoRAs to build highly efficient and scalable MoE architectures.
+Skunkworks OSS team introduces Hydra-MoE, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. 
 
-
-## Background
+## Background on MoE
 
 There is a tradeoff in dense language models between capabilities and inference time.
 
@@ -55,6 +54,19 @@ As part of the initiative, the team is exploring and has developed several archi
 
 In our POCs, these architectures have displayed potential for scaling any base model. These architectures are currently being trained on further data and will be scaled to larger sizes. We have also discovered several insights that we aim to publish for the community.
 
+## Initial Expert Domains
+
+We have identified the following domains for the initial expert modules:
+
+- Math 
+- Science
+- Reasoning
+- Coding
+- Writing
+- Truthfulness
+- Structured data handling
+- Tool integration
+
 ## Datasets
 Skunkworks community is collectively standardizing every high quality public and private Instruct data source to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources.
 We are collaborating with several academic and open source groups to expand the datasets further.
@@ -71,6 +83,11 @@ Our objective is to achieve SOTA performance within the next months by scaling a
 ## Compute Requirements
 
 Our MoE initiative is bottlenecked by compute. We are currently seeking supporters to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
+
+
+## Collaborations
+
+The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly  with  
 
 
 ## Some related works
