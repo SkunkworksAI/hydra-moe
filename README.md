@@ -74,12 +74,12 @@ We are collaborating with several academic and open source groups (including <a 
 Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7LZ0ojDUzNFWMKcrPiQJ8Glh-GIFfB7Bksb60/edit?usp=sharing
 
 ## Roadmap
-In less 2 weeks (in July), our community came together to build a viable OSS MoE. Since then, we've been expanding our experiments, improving designs, implementing new archs, performing sweeps, optimizing code and evaluating models. 
+In less than 2 weeks (in July), our community came together to build a viable OSS MoE. Since then, we've been expanding our experiments, improving designs, implementing new archs, performing sweeps, optimizing code and evaluating models. 
 
-Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures. Our objective is to achieve SOTA performance within the next 1-2 months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
+Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures. Our objective is to achieve SOTA performance within the next months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
 
 ## Release Plan
-We open-source everything. Currently, all of our datasets and trained experts are open-sourced on the HydraLM HF repo. We will first open-source (2-4 weeks) the training/inference infrastructure for anyone to easily and rapidly build their own Hydra-MoE with custom data. We aim to continuously open-source more advanced architectures as we scale and validate them.
+We open-source everything. Currently, all of our datasets and trained experts are open-sourced on the HydraLM HF repo. In the next month(s), we will open-source the training/inference infrastructure for anyone to easily and rapidly build their own Hydra-MoE with custom data. We aim to continuously open-source more advanced architectures as we scale and validate them.
 
 ## Compute Requirements
 
