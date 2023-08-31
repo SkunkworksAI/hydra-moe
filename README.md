@@ -9,7 +9,7 @@ Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SO
 
 ## Description
 
-Skunkworks OSS team introduces Hydra-MoE, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. 
+Skunkworks OSS team introduces Hydra-MoE, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. We use low-cost training approaches such as instruct finetuning and (low rank adaptations to retain the benefits of the MoE architecture while producing a model that can run on commodity hardware. 
 
 ## Project Status
 
@@ -24,16 +24,24 @@ Our objectives for this project are:
 
 ## Our Architectures
 
-As part of the initiative, the team is exploring and has developed several architecture designs to identify the most performant MoE architecture. Based on our exploration, we have developed several MoEs that have achieved promising early results.
+We have designed and developed several MoE architectures which have achieved promising early results.
 
-1. Swappable-QLoRA experts MoE (c-BTM variant)
-   - Classifier-based dynamic swapping QLoRA Experts trained on unsupervised domain clusters
-3. E2E Gating Swappable-QLoRA experts MoE (c-BTM variant)
-   - Same as above, but with more advanced Gating/Routing + Adapter Merging + End to End Training
-4. Switch-like MoE-QLoRAs (Switch Transformer variant)
-   - Switch Transformer adapted to leverage a pre-trained base and LoRAs as finetuned experts
-5. Switch-Llama (Switch Transformer variant)
-   - Vanilla Switch Transformer w/ pretrained Llama2 base
+1. Hydra-α: Swappable-QLoRA experts MoE
+   - c-BTM Inspired
+   - K-means clustering for unsupervised domain discovery from instruct dataset
+   - QLoRA finetuned experts on discovered clusters
+   - Dynamic swapping of QLoRA Experts at inference through similarity and classifier based methods
+   - Weighted-average merging of experts with base model at inference
+     
+2. Hydra-β: End-2-End MoE-QLoRA
+   - An Extension to Hydra-α with better Gating, merging and an E2E training method
+   - Expert merging through TIES merging and other methods
+   - End to End Training of gating/routing functions with exotic loss/reward functions
+
+3. Hydra-γ: Switch-MoE-QLoRA
+   - Switch Transformer Inspired
+   - adapted to leverage a pre-trained base and LoRAs as finetuned experts
+
 
 In our POCs, these architectures have displayed potential for scaling any base model. These architectures are currently being trained on further data and will be scaled to larger sizes. We have also discovered several insights that we aim to publish for the community.
 
