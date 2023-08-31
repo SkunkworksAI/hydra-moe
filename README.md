@@ -94,7 +94,7 @@ We welcome open source contributions to HydraLM! Please join our Discord for det
 Core Team:
 - <a href="https://twitter.com/far__el" target="_blank">Farouk E.</a>
 - <a href="https://twitter.com/prateeky2806" target="_blank">Prateek Y.</a>
-- <a href="https://twitter.com/sumo_43" target="_blank">Artem M.</a>
+- <a href="https://twitter.com/sumo_43" target="_blank">Artem</a>
 - <a href="https://twitter.com/propback_" target="_blank">Alpay A.</a>
 
 Non-Exhaustive list of Contributors/Collaborators/Supporters:
