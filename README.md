@@ -7,37 +7,20 @@
 ## Mission
 Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
 
-## Current Status
-Several MoE architectures developed. Currently training, optimizing and evaluating. We are also exploring more MoE arch designs based on insights gathered from our collective experiments.
-
-## Hydra-MoE Details
+## Description
 
 Skunkworks OSS team introduces Hydra-MoE, a collection of innovative Mixture of Experts (MoE) architectures that utilize LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models. 
 
-## Background on MoE
+## Project Status
 
-There is a tradeoff in dense language models between capabilities and inference time.
+This project has completed POC stage and is currently training, optimizing, evaluating and scaling several MoE architectures developed by our team.
 
-<p align="center" width="100%">
-<a ><img src="imgs/triangle_of_success.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
-</p>
+## Goals
 
-To speed up inference, there is data or model parallelism. Alternatively, if we want to solve this problem without decreasing “efficiency”, i.e. how much GPU time you’re spending per inference, we would need a way to decouple inference FLOPs from model capabilities. Mixture of Experts are a class of sparse language models designed to perform this tradeoff at the cost of additional memory. In an MoE model, the linear layers of the model are replaced by a Gating Mechanism that routes to N experts.
-
-<p align="center" width="100%">
-<a ><img src="imgs/moe.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
-</p>
-
-The Gating network’s job is to compute probabilities for each expert, per token. Then, at each token, k=1, 2, or 3 experts are selected and used for the MoE layer, with the results concatenated in the end. In practice, the tokens are split up (almost) evenly between the experts, and processed in sequence during the forward pass. By increasing the number of experts, the amount of memory that the model uses goes up, but the cost of inference stays exactly the same, since we haven’t changed the amount of computation done by the model during each foward pass. MoE is an architecture that allows us to make the tradeoff we wanted to make. But do the results of MoE models stack up to dense transformers? Given that they still have more parameters in total, can we expect better performance from MoE mdoels with a similar number of inference FLOPs? In the original MoE paper from 2017, the authors use RNNs. But since RNNs are old, we will compare the results from the Switch Transformer paper from 2021, where the Google authors use the T5 architecture.
-
-<p align="center" width="100%">
-<a ><img src="imgs/graph.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
-</p>
-
-Based on the results, MoE models not only outperform dense models in terms of inference FLOPs, they also punch above their weight class: Switch-Base achieves lower perplexity on C4 than T5-Large while using 30% the FLOPs and 10x the parameters, while Switch-Large is competitive with T5-XXL with 6% the FLOPs and 2.5x the parameters.
-
-There are several other MoE architectures that achieve varying results but consistently display the ability to scale LMs including Branch-Train-Merge (BTM), Clustered-BTM (c-BTM), GLaM... All papers are listed below in related works.
-
+Our objectives for this project are:
+- Enhance Llama-2 (or any base model) capabilities closer to GPT-4 level performance through MoE architecture
+- Serve as an exhaustive open source attempt to validate MoE techniques for large language models 
+- Release open source an effective MoE model and framework for scaling capabilities of LLMs
 
 ## Our Architectures
 
@@ -59,13 +42,14 @@ In our POCs, these architectures have displayed potential for scaling any base m
 We have identified the following domains for the initial expert modules:
 
 - Math 
-- Science
+- Science (Physics, Chemistry, Biology..)
 - Reasoning
 - Coding
 - Writing
 - Truthfulness
 - Structured data handling
 - Tool integration
+- Role-Playing
 
 ## Datasets
 Skunkworks community is collectively standardizing every high quality public and private Instruct data source to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources.
@@ -89,6 +73,29 @@ Our MoE initiative is bottlenecked by compute. We are currently seeking supporte
 
 The Skunkworks community is comprised of hundreds of the top minds in OSS AI. The core team collaborates directly  with  
 
+
+## Background on MoE
+There is a tradeoff in dense language models between capabilities and inference time.
+
+<p align="center" width="100%">
+<a ><img src="imgs/triangle_of_success.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
+</p>
+
+To speed up inference, there is data or model parallelism. Alternatively, if we want to solve this problem without decreasing “efficiency”, i.e. how much GPU time you’re spending per inference, we would need a way to decouple inference FLOPs from model capabilities. Mixture of Experts are a class of sparse language models designed to perform this tradeoff at the cost of additional memory. In an MoE model, the linear layers of the model are replaced by a Gating Mechanism that routes to N experts.
+
+<p align="center" width="100%">
+<a ><img src="imgs/moe.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
+</p>
+
+The Gating network’s job is to compute probabilities for each expert, per token. Then, at each token, k=1, 2, or 3 experts are selected and used for the MoE layer, with the results concatenated in the end. In practice, the tokens are split up (almost) evenly between the experts, and processed in sequence during the forward pass. By increasing the number of experts, the amount of memory that the model uses goes up, but the cost of inference stays exactly the same, since we haven’t changed the amount of computation done by the model during each foward pass. MoE is an architecture that allows us to make the tradeoff we wanted to make. But do the results of MoE models stack up to dense transformers? Given that they still have more parameters in total, can we expect better performance from MoE mdoels with a similar number of inference FLOPs? In the original MoE paper from 2017, the authors use RNNs. But since RNNs are old, we will compare the results from the Switch Transformer paper from 2021, where the Google authors use the T5 architecture.
+
+<p align="center" width="100%">
+<a ><img src="imgs/graph.png" alt="WizardLM" style="width: 50%; min-width: 50%; display: block; margin: auto;"></a>
+</p>
+
+Based on the results, MoE models not only outperform dense models in terms of inference FLOPs, they also punch above their weight class: Switch-Base achieves lower perplexity on C4 than T5-Large while using 30% the FLOPs and 10x the parameters, while Switch-Large is competitive with T5-XXL with 6% the FLOPs and 2.5x the parameters.
+
+There are several other MoE architectures that achieve varying results but consistently display the ability to scale LMs including Branch-Train-Merge (BTM), Clustered-BTM (c-BTM), GLaM... All papers are listed below in related works.
 
 ## Some related works
 - GLaM: Efficient Scaling of Language Models with Mixture-of-Experts
