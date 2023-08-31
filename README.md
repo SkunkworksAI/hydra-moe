@@ -9,17 +9,17 @@ A scalable, efficient and Open Source Mixture of Experts (MoE) architecture to e
 
 ## Description
 
-Skunkworks OSS team introduces Hydra-MoE, an innovative Mixture of Experts (MoE) architecture that leverages LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art model and can run on commodity hardware. 
+Skunkworks OSS team introduces Hydra-MoE, an innovative Mixture of Experts (MoE) architecture that leverages LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, and efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models and can run on commodity/consumer hardware. 
 
 ## Project Status
 
-This project has completed POC stage and is currently training, optimizing, evaluating and scaling several MoE architectures developed by our team.
+This project has completed a PoC stage and is currently training, optimizing, evaluating and scaling several MoE architectures developed by our team.
 
 ## Goals
 
 Our objectives for this project are:
-- Enhance Llama-2 (or any base model) capabilities closer to GPT-4 level performance through MoE architecture
-- Serve as an exhaustive open source attempt to validate MoE techniques for large language models 
+- Enhance Llama-2 (or any base model) capabilities to be closer to GPT-4's level of performance, through MoE architecture.
+- Serve as an exhaustive open source attempt to validate MoE techniques for large language models.
 - Release open source and effective MoE models, framework and infrastructure for scaling capabilities of any LLMs.
 
 ## Our Architectures
@@ -27,26 +27,26 @@ Our objectives for this project are:
 We have designed and developed several MoE architectures which have achieved promising early results.
 
 1. Hydra-α: Swappable-QLoRA experts MoE
-   - c-BTM Inspired
-   - K-means clustering for unsupervised domain discovery from instruct dataset
-   - QLoRA finetuned experts on discovered clusters
-   - Dynamic swapping of QLoRA Experts at inference through similarity and classifier based methods
-   - Weighted-average merging of experts with base model at inference
+   - <a href="https://arxiv.org/abs/2303.14177" target="_blank">c-BTM Inspired</a>.
+   - K-means clustering for unsupervised domain discovery from instruct dataset.
+   - <a href="https://arxiv.org/abs/2305.14314" target="_blank">QLoRA</a> finetuned experts on discovered clusters.
+   - Dynamic swapping of QLoRA Experts at inference through similarity and classifier based methods.
+   - Weighted-average merging of experts with base model at inference.
      
-2. Hydra-β: End-to-End MoE-QLoRA
-   - An Extension to Hydra-α with better Gating, merging and an E2E training method
-   - Expert merging through TIES merging and other methods
-   - End-to-End Training of gating/routing functions with exotic loss/reward functions
+2. Hydra-β: End-to-End (E2E) MoE-QLoRA
+   - An Extension to Hydra-α with better gating, merging and an E2E training method.
+   - Expert merging through <a href="https://arxiv.org/abs/2306.01708" target="_blank">TIES merging</a> and other methods.
+   - E2E Training of gating/routing functions with exotic loss/reward functions.
 
 3. Hydra-γ: Switch-MoE-QLoRA
-   - Switch Transformer Inspired 
-   - End-to-End finetuning approach
-   - Frozen pre-trained base
-   - Token-wise routing function with LoRA experts
-   - Stable routing: Auxiliary loss to penalize high variance between experts, and Z-Loss to reduce expert logits
+   - <a href="https://arxiv.org/abs/2101.03961" target="_blank">Switch Transformer</a> Inspired 
+   - E2E finetuning approach.
+   - Frozen pre-trained base.
+   - Token-wise routing function with LoRA experts.
+   - Stable routing: Auxiliary loss to penalize high variance between experts, and Z-Loss to reduce expert logits.
 
 These architectures are currently being trained on further data and scaled to larger sizes. 
-Early results indicate our MoE architectures outperform base model across several benchmarks. These results are currently being validated/replicated before being published.
+Early results indicate our MoE architectures outperform base models across several benchmarks. These results are currently being validated and replicated before being published.
 
 ## Evaluation Criteria
 
@@ -57,7 +57,7 @@ We evaluate Hydra-MoEs using the LM-Evaluation-Harness, Fast-Eval and human eval
 We are training experts for the following domains:
 
 - Math 
-- Science (Physics, Chemistry, Biology..)
+- Science (Physics, Chemistry, Biology...etc)
 - Reasoning
 - Coding
 - Writing
@@ -67,7 +67,7 @@ We are training experts for the following domains:
 - Role-Playing
 
 ## Datasets
-Skunkworks community is collecting, consolidating and standardizing high quality public and private Instruct data sources to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources covering all domains listed above.
+The Skunkworks community is collecting, consolidating and standardizing high quality public and private Instruct data sources to craft a unified source of data for our MoE initiative and any open-source project. The collective size of the datasets exceeds 90 separate sources covering all domains listed above.
 
 We are collaborating with several academic and open source groups (including <a href="https://twitter.com/alignment_lab" target="_blank">Alignment Lab</a> and members of Nous) to expand datasets further. We are also crafting new instruct datasets from high quality raw data sources.
 
@@ -76,14 +76,14 @@ Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7L
 ## Roadmap
 In less than 2 weeks (in July), our community came together to build a viable OSS MoE. Since then, we've been expanding our experiments, improving designs, implementing new archs, performing sweeps, optimizing code and evaluating models. 
 
-Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures. Our objective is to achieve SOTA performance within the next months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
+For the next few weeks, we will be exploring new architectures as well as optimizing, training and scaling existing performant architectures. Our objective is to achieve SOTA performance within the coming months by scaling a 70B base model with our most performant MoE arch. We fully open-source all datasets, code and models.
 
 ## Release Plan
 We open-source everything. Currently, all of our datasets and trained experts are open-sourced on the HydraLM HF repo. In the next month(s), we will open-source the training/inference infrastructure for anyone to easily and rapidly build their own Hydra-MoE with custom data. We aim to continuously open-source more advanced architectures as we scale and validate them.
 
 ## Compute Requirements
 
-Skunkworks team is currently seeking supporters/sponsors to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
+The Skunkworks team is currently seeking supporters/sponsors to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
 This compute will help us scale our MoE experiments and the most performant MoE architecture to GPT-4 level performance.
 
 ## Contributors and Collaborations
