@@ -73,7 +73,8 @@ Our objective is to achieve SOTA performance within the next months by scaling a
 
 ## Compute Requirements
 
-Our MoE initiative is bottlenecked by compute. We are currently seeking supporters to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
+Skunkworks team is currently seeking supporters/sponsors to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
+This compute will help us scale our MoE experiments and the most performant MoE architecture to GPT-4 level performance.
 
 
 ## Collaborations
