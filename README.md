@@ -37,6 +37,11 @@ We are also crafting new instruct datasets from high quality raw data sources.
 Full list of (public) datasets: https://docs.google.com/spreadsheets/d/1tkRZ8T7LZ0ojDUzNFWMKcrPiQJ8Glh-GIFfB7Bksb60/edit?usp=sharing
 Standardized datasets are hosted here: https://huggingface.co/HydraLM
 
+## Plan
+
+Over the next weeks, we are exploring new architectures as well as optimizing, training and scaling existing performant architectures.
+Our objective is to achieve SOTA within the next 1-2 months and open-source all datasets, code, models of our most performant MoE.
+
 ## Compute Requirements
 
 Our MoE initiative is bottlenecked by compute. We are currently seeking supporters to provide us access to reliable continuous compute for the next 3-6 months. Our target compute objective is 64x GPUs (preferably H100s/A100s). 
