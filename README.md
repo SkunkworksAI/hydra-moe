@@ -38,11 +38,11 @@ We have designed and developed several MoE architectures which have achieved pro
    - Expert merging through TIES merging and other methods
    - End-to-End Training of gating/routing functions with exotic loss/reward functions
 
-3. Hydra-γ: Switch-MoE-QLoRA
+3. Hydra-γ: Switch-MoE
    - Switch Transformer Inspired 
    - End-to-End finetuning approach
    - Frozen pre-trained base
-   - Token-wise routing function with LoRA experts
+   - Token-wise routing function
    - Stable routing: Auxiliary loss to penalize high variance between experts, and Z-Loss to reduce expert logits
 
 These architectures are currently being trained on further data and scaled to larger sizes. 
