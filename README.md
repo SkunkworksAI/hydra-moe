@@ -38,7 +38,7 @@ We have designed and developed several MoE architectures which have achieved pro
    - Expert merging through <a href="https://arxiv.org/abs/2306.01708" target="_blank">TIES merging</a> and other methods.
    - E2E Training of gating/routing functions with exotic loss/reward functions.
 
-These architectures are currently being trained on further data and scaled to larger sizes. 
+These architectures are currently being trained on further data and scaled to larger sizes. More architectures are being experimented with and will be revealed when validated.
 Early results indicate our MoE architectures outperform base models across several benchmarks. These results are currently being validated and replicated before being published.
 
 ## Evaluation Criteria
