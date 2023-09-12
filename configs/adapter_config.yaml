@@ -1,0 +1,22 @@
+instruct_adapter:
+  adapter_path: "HydraLM/sharegpt_llama2-7b"
+  data_path:
+    - "Fredithefish/ShareGPT-unfiltered-alpaca-lora-format"
+  prompt_format: "alpaca"
+  instruct_column: "instruction"
+    
+math_adapter:
+  adapter_path: "HydraLM/camel_math_llama2-7b"
+  data_path:
+    - "camel-ai/math"
+  prompt_format: "camel"
+  instruct_column: "message_1"
+
+science_adapter:
+  adapter_path: "HydraLM/camel_science_llama2-7b"
+  data_path:
+    - "camel-ai/physics"
+    - "camel-ai/chemistry"
+    - "camel-ai/biology"
+  prompt_format: "camel"
+  instruct_column: "message_1"

@@ -7,6 +7,20 @@
 ## Mission
 A scalable, efficient and Open Source Mixture of Experts (MoE) architecture to enable OSS AI to achieve SOTA (GPT-4 level) performance.
 
+
+## Quickstart
+Setup:
+```
+sh setup_moe.sh
+```
+
+Run Inference:
+```
+python main.py --inference
+```
+
+
+
 ## Description
 
 Skunkworks OSS team introduces Hydra-MoE, an innovative Mixture of Experts (MoE) architecture that leverages LoRA/QLoRA experts to scale and augment the performance of base language models. The central aim of this research is to transmute any base language model into an advanced, lightweight, and efficient MoE framework, employing swappable QLoRA Expert Adapters, with the objective of achieving performance levels that rival state-of-the-art models and can run on commodity/consumer hardware. 
