@@ -19,7 +19,12 @@ Run Inference:
 python main.py --inference
 ```
 
-
+Run with Docker:
+```
+cp .envtemplate .env # Add HUGGINGFACE_API_TOKEN to .env file
+chmod +x ./run_docker.sh
+./run_docker.sh
+```
 
 ## Description
 
