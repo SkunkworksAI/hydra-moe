@@ -3,10 +3,8 @@ import torch
 import torch.nn.functional as F
 import json
 import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from embedding.embedding_registry import AdapterRegistry
 from args import *
 from utils import *
 from moe_utils import *
