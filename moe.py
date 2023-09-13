@@ -16,6 +16,9 @@ from tqdm import tqdm
 import logging
 import bitsandbytes as bnb
 import pandas as pd
+import yaml
+
+from moe_utils import get_inference_model
 
 import torch
 import transformers
@@ -36,20 +39,33 @@ tokenizer = None
 centroids = {}
 kmeans_centroids = {}
 
+class Config:
+    def __init__(self, dictionary):
+        for k, v in dictionary.items():
+            setattr(self, k, v)
 
 
+def load_config(config_file):
+        with open(config_file, 'r') as stream:
+            try:
+                config_dict = yaml.safe_load(stream)
+                config = Config(config_dict)
+                return config
+            except yaml.YAMLError as exc:
+                print(exc)
 
 def inference():
-    hfparser = transformers.HfArgumentParser((
-        ModelArguments, DataArguments, TrainingArguments, GenerationArguments
-    ))
-    model_args, data_args, training_args, generation_args, extra_args = \
-        hfparser.parse_args_into_dataclasses(return_remaining_strings=True)
-    training_args.generation_config = transformers.GenerationConfig(**vars(generation_args))
-    args = argparse.Namespace(
-        **vars(model_args), **vars(data_args), **vars(training_args)
-    )
-    print(args)
+    
+    parser = argparse.ArgumentParser(
+            prog="moe.py",
+            description="run MoE inference")
+
+    parser.add_argument('--config_file', type=str, default="configs/inference_config.yaml", help="path of config file. e.g. configs/inference_config.yaml")
+
+    args = parser.parse_args()
+    config_file = args.config_file
+
+    config = load_config(config_file)
 
     cluster_nums = range(32)  
     checkpoint_dirs = [
@@ -59,14 +75,15 @@ def inference():
         }
         for cluster in cluster_nums
     ]
+
     #Load PEFT adapters to model
-    model, tokenizer = get_inference_model(args, checkpoint_dirs)
-    base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
+    model, tokenizer = get_inference_model(config, checkpoint_dirs)
+    #base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
     
     model.config.use_cache = False
-    base_model.config.use_cache = False
+    #base_model.config.use_cache = False
     print('loaded model')
-    set_seed(args.seed)
+    #set_seed(args.seed)
 
     # Verifying the datatypes and parameter counts before training.
     dtypes = {}
@@ -78,8 +95,6 @@ def inference():
     for k, v in dtypes.items(): total+= v
     for k, v in dtypes.items():
         print(k, v, v/total)
-
-    
 
     logger.info("*** Predict ***")
     
@@ -102,14 +117,14 @@ def inference():
                 input_ids=inputs["input_ids"],
                 max_length=count,
                 max_new_tokens = count,
-                do_sample=generation_args.do_sample,
-                num_beams=generation_args.num_beams,
-                temperature=generation_args.temperature,
-                top_k=generation_args.top_k,
-                top_p=generation_args.top_p,
-                repetition_penalty=generation_args.repetition_penalty,
-                length_penalty=generation_args.length_penalty,
-                no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
+                #do_sample=config.do_sample,
+                #num_beams=generation_args.num_beams,
+                #temperature=generation_args.temperature,
+                #top_k=generation_args.top_k,
+                #top_p=generation_args.top_p,
+                #repetition_penalty=generation_args.repetition_penalty,
+                #length_penalty=generation_args.length_penalty,
+                #no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
                 num_return_sequences=1,
             )
         output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
@@ -161,15 +176,13 @@ def inference():
         print("MoE Model:")
         print(output)
 
-        output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
-        print("Base Model:")
-        print(output_base)
+        #output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
+        #print("Base Model:")
+        #print(output_base)
 
         continue_prompt = input("Do you want to continue? (yes/no): ")
         if continue_prompt.lower() != "yes":
             break
-
-  
 
 if __name__ == "__main__":
     inference()
