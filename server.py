@@ -16,24 +16,24 @@ class InferenceConfig:
 
 default_config = InferenceConfig()
 
-def get_model_output(moe_chat_history, base_chat_history, instruction):
+def get_model_output(moe_chat_history, base_chat_history, instruction, method, expertsK, max_tokens):
     logger.info(moe_chat_history)
     logger.info(base_chat_history)
     logger.info(instruction)
     
-    weights = moe.get_weights(instruction, default_config.method)
+    weights = moe.get_weights(instruction, method)
     logger.info(weights)
     
-    alphas = moe.mult_weights_by_alpha(weights, int(default_config.alphaIn), int(default_config.expertsK))
+    alphas = moe.mult_weights_by_alpha(weights, int(default_config.alphaIn), int(expertsK))
     logger.info(alphas)
     
-    output = moe.generate_output(instruction, moe.model, alphas, moe.tokenizer, moe.generation_args, count=240)
+    output = moe.generate_output(instruction, moe.model, alphas, moe.tokenizer, moe.generation_args, count=max_tokens)
     logger.info(output)
     
     response = output.split("### Response:\n")[1].split("</s>")[0].strip()
     moe_chat_history.append((instruction, f"MoE Model: {response}"))
     
-    output_base = moe.generate_base_output(instruction, moe.base_model, alphas, moe.base_tokenizer, moe.generation_args, count=240)
+    output_base = moe.generate_base_output(instruction, moe.base_model, alphas, moe.base_tokenizer, moe.generation_args, count=max_tokens)
     
     response_base = output_base.split("### Response:\n")[1].split("</s>")[0].strip()
     base_chat_history.append((instruction, f"Base Model: {response_base}"))
@@ -42,8 +42,7 @@ def get_model_output(moe_chat_history, base_chat_history, instruction):
 
 
 def create_chat_interface():
-    with gr.Blocks() as chat_tab:
-        gr.Markdown("# Hydra MoE Web Interface")
+    with gr.Blocks() as chat_interface:
         with gr.Row():
             with gr.Column():
                 gr.Markdown("# Hydra MoE")
@@ -51,13 +50,32 @@ def create_chat_interface():
             with gr.Column():
                 gr.Markdown("# Base")
                 base_chat_display = gr.Chatbot([], elem_id="base_chat")
-        chat_input = gr.Textbox("Tell me a story about a hydra with multiple personalities. Take a deep breath.")
+        with gr.Row():
+            method_dropdown = gr.Dropdown(["combined", "transformer", "centroid"], label="Method", value="transformer")
+            expertsK_slider = gr.Slider(minimum=1, maximum=10, value=3, label="Experts K")
+            max_tokens_slider = gr.Slider(minimum=50, maximum=1024, value=320, label="Max Tokens")
+        chat_input = gr.Textbox("Tell me a story about a hydra.")
+        
         chat_input.submit(
             get_model_output,
-            inputs=[moe_chat_display, base_chat_display, chat_input],
+            inputs=[moe_chat_display, base_chat_display, chat_input, method_dropdown, expertsK_slider, max_tokens_slider],
             outputs=[moe_chat_display, base_chat_display],
         )
-    return chat_tab
+    return chat_interface
+
+def init_interface():
+    with gr.Blocks() as interface:
+        with gr.Tab("Inference A/B"):
+            create_chat_interface()
+        with gr.Tab("Finetune"):
+            gr.Markdown("Finetuning Interface Stub")
+    logger.info("Interface initialized")
+    interface.launch(server_name="0.0.0.0", server_port=8001, inbrowser=True)
+
+def main():
+    logger.info("Calling main")
+    
+
 
 def init_interface():
     chat_interface = create_chat_interface()

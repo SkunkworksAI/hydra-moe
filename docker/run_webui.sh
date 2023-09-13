@@ -5,6 +5,6 @@ if [ ! -d "gating_v2" ]; then
     git lfs clone https://huggingface.co/HydraLM/gating_v2
 fi
 pip install gradio
-python3 ./main.py --webui
+python3 /code/main.py --webui
 echo "Container idle.."
 tail -f /dev/null
