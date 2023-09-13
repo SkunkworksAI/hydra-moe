@@ -14,3 +14,5 @@ wandb==0.15.3
 huggingface_hub
 sentence_transformers
 gradio
+pandas
+tabulate
