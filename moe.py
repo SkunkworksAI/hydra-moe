@@ -175,7 +175,8 @@ def inference():
         if continue_prompt.lower() != "yes":
             break
   
-initialize_model()
+
 
 if __name__ == "__main__":
+    initialize_model()
     inference()
