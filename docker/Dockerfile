@@ -28,5 +28,5 @@ COPY --chown=appuser:appuser  . /hydra-moe
 WORKDIR /hydra-moe
 RUN chmod +x ./setup_moe.sh & chmod +x ./docker/run.sh
 RUN sh ./setup_moe.sh
-ENTRYPOINT ["tini", "--", "bash", "./docker/run.sh"]   
+ENTRYPOINT ["tini", "--", "bash", "./docker/run_webui.sh"]   
 
