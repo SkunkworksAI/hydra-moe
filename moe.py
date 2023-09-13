@@ -46,28 +46,37 @@ class Config:
 
 
 def load_config(config_file):
-        with open(config_file, 'r') as stream:
-            try:
-                config_dict = yaml.safe_load(stream)
-                config = Config(config_dict)
-                return config
-            except yaml.YAMLError as exc:
-                print(exc)
+    with open(config_file, 'r') as stream:
+        try:
+            config_dict = yaml.safe_load(stream)
+            config = Config(config_dict)
+            return config
+        except yaml.YAMLError as exc:
+            print(exc)
 
 def inference():
-    
+
     parser = argparse.ArgumentParser(
             prog="moe.py",
             description="run MoE inference")
 
     parser.add_argument('--config_file', type=str, default="configs/inference_config.yaml", help="path of config file. e.g. configs/inference_config.yaml")
+    args, unknown_args = parser.parse_known_args()
 
-    args = parser.parse_args()
-    config_file = args.config_file
+    if args.config_file:
+        # Load config from file
+        config = load_config(args.config_file)
+    else:
+        # Parse remaining arguments as key-value pairs
+        config = {}
+        print(unknown_args)
+        for arg in unknown_args:
+            key, value = arg.split("=")
+            config[key] = value
+        config = Config(config)
 
-    config = load_config(config_file)
 
-    cluster_nums = range(32)  
+    cluster_nums = range(32)
     checkpoint_dirs = [
         {
             "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
@@ -79,7 +88,7 @@ def inference():
     #Load PEFT adapters to model
     model, tokenizer = get_inference_model(config, checkpoint_dirs)
     #base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
-    
+
     model.config.use_cache = False
     #base_model.config.use_cache = False
     print('loaded model')
@@ -97,7 +106,7 @@ def inference():
         print(k, v, v/total)
 
     logger.info("*** Predict ***")
-    
+
     def generate_prompt(instruction, input=None):
         prompt = f"### Instruction:\n{instruction}\n\n"
         if input:
@@ -110,7 +119,7 @@ def inference():
 
         print(f'Updating alphas to {alphas}')
         model.update_alphas(alphas)
- 
+
 
         with torch.no_grad():
             generation_output = model.generate(
@@ -129,7 +138,7 @@ def inference():
             )
         output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
         return output
-    
+
 
     def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
         prompt = generate_prompt(instruction)
