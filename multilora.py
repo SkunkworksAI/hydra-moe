@@ -17,7 +17,7 @@ import re
 import warnings
 from dataclasses import asdict, dataclass, field, replace
 from enum import Enum
-from typing import List, Optional, Tuple, Union, Generator
+from typing import List, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
