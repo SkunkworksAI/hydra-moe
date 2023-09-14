@@ -20,6 +20,8 @@ RUN mkdir /hydra-moe && \
     mkdir -p /home/appuser/.cache && \
     chown -R appuser:appuser /hydra-moe /home/appuser
 COPY ./requirements.txt /hydra-moe/requirements.txt
+RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+
 RUN --mount=type=cache,target=~/.cache/pip \
     pip install -r /hydra-moe/requirements.txt
 # # Set working directory to /app
