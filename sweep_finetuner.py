@@ -4,7 +4,7 @@ import yaml
 import shutil
 from subprocess import call
 import os
-
+from attrdict import AttrDict
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -54,18 +54,13 @@ def get_args():
     return parser.parse_args()
 
 
-class Config:
-    def __init__(self, dictionary):
-        for k, v in dictionary.items():
-            setattr(self, k, v)
 
 
 def load_config(config_file):
     with open(config_file, "r") as stream:
         try:
             config_dict = yaml.safe_load(stream)
-            config = Config(config_dict)
-            return config
+            return config_dict
         except yaml.YAMLError as exc:
             print(exc)
 
