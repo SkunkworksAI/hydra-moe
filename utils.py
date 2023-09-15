@@ -459,7 +459,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("timdettmers/openassistant-guanaco")
         elif dataset_name == "vicuna":
             raise NotImplementedError("Vicuna data was not released.")
-        elif "HydraLM" in dataset_name:
+        elif "HydraLM" in dataset_name and config is None :
             dataset = format(
                 dataset_name, alpaca_template, split="train", config = config
             )
@@ -467,6 +467,10 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             print(dataset[0]["output"])
             dataset = DatasetDict({"train": dataset})
             return dataset
+        elif "HydraLM" in dataset_name and config is not None:
+            return load_dataset(dataset_name, config)
+
+     
         else:
             if os.path.exists(dataset_name):
                 try:

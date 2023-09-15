@@ -68,7 +68,10 @@ def cluster_template(
 
 
 def format(path, template_func, filter_key="conversation_id", split="train", config = None):
-    dataset = load_dataset(path)
+    if config is None:
+        dataset = load_dataset(path)
+    else:
+        dataset = load_dataset(path, config)
     formatted = []
     data = dataset[split] if split else dataset
     data = data.sort(filter_key)
