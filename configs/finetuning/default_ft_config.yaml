@@ -1,5 +1,5 @@
 model_name_or_path: "pankajmathur/orca_mini_v3_7b"
-dataset: "HydraLM/SkunkData-Corpus-Clusters-001"
+dataset: "HydraLM/corpus_1_clustered_formatted"
 use_auth: true
 # output_dir: "./output_v2/7b_cluster030"
 #run_name: "partitioned_v3_standardized_030"

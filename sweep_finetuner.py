@@ -32,7 +32,7 @@ def get_args():
     parser.add_argument(
         "--project",
         type=str,
-        default="AblateIt-Sweeps",
+        default="HydraALPHA-7B",
         help="Wandb project name.",
     )
 
