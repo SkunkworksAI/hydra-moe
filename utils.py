@@ -12,6 +12,8 @@ from tqdm import tqdm
 import logging
 import bitsandbytes as bnb
 import pandas as pd
+from preprocessing import alpaca_template, format
+from datasets import load_dataset, Dataset, DatasetDict
 
 import torch
 import transformers
@@ -440,7 +442,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     """
 
-    def load_data(dataset_name):
+    def load_data(dataset_name, config = None):
         if dataset_name == "alpaca":
             return load_dataset("tatsu-lab/alpaca")
         elif dataset_name == "alpaca-clean":
@@ -457,6 +459,14 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             return load_dataset("timdettmers/openassistant-guanaco")
         elif dataset_name == "vicuna":
             raise NotImplementedError("Vicuna data was not released.")
+        elif "HydraLM" in dataset_name:
+            dataset = format(
+                dataset_name, alpaca_template, split="train", config = config
+            )
+            print(dataset[0]["input"])
+            print(dataset[0]["output"])
+            dataset = DatasetDict({"train": dataset})
+            return dataset
         else:
             if os.path.exists(dataset_name):
                 try:
