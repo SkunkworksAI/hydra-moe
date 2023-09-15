@@ -37,11 +37,21 @@ def get_args():
     )
 
     parser.add_argument(
+        "--entity",
+        type=str,
+        default="llama-moe",
+        help="Wandb entity name.",
+    )
+
+    parser.add_argument(
         "--default_training_config",
         type=str,
         default="configs/finetuning/default_ft_config.yaml",
         help="Path to default training args yaml file.",
     )
+
+
+    return parser.parse_args()
 
 
 class Config:
@@ -60,8 +70,7 @@ def load_config(config_file):
             print(exc)
 
 
-def finetune_sweep():
-    args = get_args()
+def finetune_sweep(args):
     sweep_id = args.sweep_id
 
     if not sweep_id:
@@ -106,26 +115,11 @@ def finetune_sweep():
         wandb.agent(sweep_id, run_finetune, project=args.project, entity=args.entity)
 
 if __name__ == "__main__":
-    finetune_sweep()
+    args = get_args()
+    finetune_sweep(args)
 
 
 
 
 
 
-
-
-def finetuner_runner(config_file):
-    config = load_config(config_file)
-    model_name = config.model_name_or_path.split("/")[1]
-    if "/" in config.dataset:
-        dataset_name = config.dataset.split("/")[1]
-    else:
-        dataset_name = config.dataset
-    config.output_dir = f"{config.output_dir}_{model_name}_{dataset_name}"
-    config.hub_model_id = f"{config.hub_model_id}/{model_name}_{dataset_name}"
-    command = "python finetuner.py "
-    for key, value in vars(config).items():
-        command += f"--{key} {value} "
-    print(f"Command:\n{command.split(' ')}")
-    subprocess.run(command, shell=True)

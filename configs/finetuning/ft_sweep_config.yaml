@@ -9,5 +9,4 @@ wandb_args:
     cluster:
       min: 0
       max: 31
-      type: int
 
