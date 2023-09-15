@@ -3,6 +3,7 @@ dataset: "HydraLM/corpus_1_clustered_formatted"
 use_auth: true
 # output_dir: "./output_v2/7b_cluster030"
 #run_name: "partitioned_v3_standardized_030"
+format: "input-output"
 logging_steps: 10
 source_max_len: 2048
 target_max_len: 2048
