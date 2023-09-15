@@ -227,15 +227,15 @@ class GenerationArguments:
 
 @dataclass
 class TrainedExpertsArguments:
-    centroids_pickle_path: Optional[str] = field(
-        default = "hydra-moe/gating_v2/cluster_centers.pkl",
-        metadata = {
-            "help": "path to the pickle file that has the dict of {adapter_name: adapter_centroids}"
-        }
-    )
     adapter_paths: Optional[str] = field(
         default = None,
         metadata = {
             "help": "JSON with a dict of {adapter_name: adapter_path}"
+        }
+    )
+    adapter_centroids: Optional[str] = field(
+        default = "hydra-moe/gating_v2/cluster_centers.pkl",
+        metadata = {
+            "help": "path to the pickle file that has the centroid for each adapter"
         }
     )

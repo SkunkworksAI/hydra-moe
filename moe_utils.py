@@ -8,7 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, man
 from utils import *
 from moe_utils import *
 import json
-import os
+from pathlib import Path, PosixPath
 import numpy as np
 from peft_model import PeftModel
 #from moe.alpha import PeftModel
@@ -20,12 +20,9 @@ from sentence_transformers import SentenceTransformer
 # model = None
 model_class = None
 tokenizer = None
-centroids = None
 embedding_model = None
-kmeans_centroids = {}
 #load tfidf vectorizer
-root_dir = os.path.abspath(os.pardir)
-gte = None
+ROOT_DIR = Path('.').resolve().parent
 
 def get_inference_model(
     config, checkpoint_dirs: dict[str, str], base_model=None):
@@ -161,11 +158,24 @@ def get_base_inference_model(config):
 
     return model, tokenizer
 
-def load_gating32():
-    global centroids
-    centroids_pickle_path = os.path.join(root_dir, 'hydra-moe','gating_v2', 'cluster_centers.pkl')
+def load_centroids(centroids_pickle_path: PosixPath) -> dict:
+    """Loads the centroids for the Experts from a pickle file
+    The pkl file shoudl contain a dict like {adapter_name: adapter_centroid}
+
+    Args:
+        centroids_pickle_path (posixpath): path to the centroids file
+
+    Returns:
+        dict  {adapter_name: adapter_centroid}
+    """
+    centroids_pickle_path = ROOT_DIR/'hydra-moe/gating_v2/cluster_centers.pkl'
     with open(centroids_pickle_path, 'rb') as f:
         centroids_array = pickle.load(f)
+
+    # TODO: we should probably change the format of `cluster_centers.pkl`
+    # so that we have each centroid mapped to an adapter name
+    # instead of having to "guess" here which centroid goes with which adapter
+
     centroids = {f"cluster_{i}": centroids_array[i] for i in range(centroids_array.shape[0])}
     return centroids
 
@@ -201,7 +211,7 @@ def select_adapter_classifier(instruction):
     global tokenizer
 
     if model_class is None:
-        model_path = os.path.join(root_dir, 'hydra-moe', 'gating_v2', 'model')
+        model_path = os.path.join(ROOT_DIR, 'hydra-moe', 'gating_v2', 'model')
 
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/e5-large-32-32000')
         model_class = model_class.to('cuda')
@@ -230,6 +240,9 @@ def select_adapter_classifier(instruction):
     # adapter_names = [
     #    f"cluster_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}" for cluster in cluster_nums
     # ]
+
+    #TODO: adapter names should come from file
+
     adapter_names = [
        f"{str(cluster)}" for cluster in cluster_nums  # TODO: need to change this to pull the "right" set of adapters
     ]
@@ -255,16 +268,15 @@ def combine_all_predictions(transformer_pred, transformer_conf, centroid_pred, k
 
     return votes.index(max(votes)), ranked_classes
 
-def get_weights(instruction, method="combined"):
+def get_weights(instruction, method="combined", centroids_pickle_path: PosixPath = None):
     global centroids
-    global gte
     global embedding_model
     if centroids is None:
-            print("LOADING CENTROIDS")
-            load_gating32()
+        print("LOADING CENTROIDS")
+        centroids = load_centroids(centroids_pickle_path)
 
     if embedding_model is None:
-        embedding_model = SentenceTrnsformer('all-mpnet-base-v2', device="cuda")
+        embedding_model = SentenceTransformer('all-mpnet-base-v2', device="cuda")
 
     def normalize(probs):
         total = sum(probs)

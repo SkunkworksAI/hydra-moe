@@ -14,7 +14,6 @@ from typing import Optional, Dict, Sequence
 import numpy as np
 from tqdm import tqdm
 import logging
-import bitsandbytes as bnb
 import pandas as pd
 
 import torch
@@ -33,8 +32,6 @@ logger = logging.getLogger(__name__)
 IGNORE_INDEX = -100
 model = None
 tokenizer = None
-centroids = {}
-kmeans_centroids = {}
 generation_args = None
 
 def initialize_model():
@@ -54,8 +51,8 @@ def initialize_model():
 
     #Load PEFT adapters to model
     print(args)
-    adapters_path = os.path.join(root_dir, trained_exps_args.adapter_paths)
-    with open(adapters_path) as f:
+    adapter_paths = ROOT_DIR/trained_exps_args.adapter_paths
+    with open(adapter_paths) as f:
         checkpoint_dirs = json.load(f)
 
     base_model, tokenizer = get_base_inference_model(args)
@@ -80,9 +77,7 @@ def initialize_model():
 
     logger.info("*** Predict ***")
 
-    # load_kmeans()
-    # load_centroid()
-    load_gating32()
+    load_centroids(ROOT_DIR/trained_exps_args.adapter_centroids)
 
 def generate_prompt(instruction, input=None):
     prompt = f"### Instruction:\n{instruction}\n\n"
