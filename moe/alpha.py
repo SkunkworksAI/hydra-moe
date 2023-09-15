@@ -6,11 +6,13 @@ import bitsandbytes as bnb
 from peft import LoraModel
 from peft.tuners.lora import LoraLayer, Linear, Linear4bit, Linear8bitLt, Embedding
 
+from peft.import_utils import is_bnb_4bit_available, is_bnb_available
+
 class AlphaLoraModel(LoraModel):
     #Extends LoraModel to provide support for inference with multiple adapters at a time.
 
     def __init__(self, model, config, adapter_name):
-        super().__init__()
+        super().__init__(model, config, adapter_name)
         self.model = model
         self.forward = self.model.forward
         self.peft_config = config
@@ -259,11 +261,18 @@ class AlphaLinear8bitLt(Linear8bitLt):
         return result
 
 
-class AlphaLinear4Bit(Linear4bit):
+class AlphaLinear4bit(Linear4bit):
     # hydra-moe-alpha implemented in a dense layer.
 
-    def __init__(self, **kwargs):
-        super(Linear4bit, self).__init__(kwargs)
+    def __init__(self,
+        adapter_name,
+        in_features,
+        out_features,
+        r: int = 0,
+        lora_alpha: int = 1,
+        lora_dropout: float = 0.0,
+        **kwargs):
+        super(Linear4bit, self).__init__(*kwargs[0])
 
 
     def forward(self, x: torch.Tensor):
@@ -298,65 +307,97 @@ class AlphaLinear4Bit(Linear4bit):
 
 
 
-class Linear4bit(bnb.nn.Linear4bit, LoraLayer):
-            # Lora implemented in a dense layer
-            def __init__(
-                self,
-                adapter_name,
-                in_features,
-                out_features,
-                r: int = 0,
-                lora_alpha: int = 1,
-                lora_dropout: float = 0.0,
-                **kwargs,
-            ):
-                bnb.nn.Linear4bit.__init__(
-                    self,
-                    in_features,
-                    out_features,
-                    bias=kwargs.get("bias", True),
-                    compute_dtype=kwargs.get("compute_dtype", torch.float32),
-                    compress_statistics=kwargs.get(
-                        "compress_statistics", True),
-                    quant_type=kwargs.get("quant_type", "nf4"),
-                )
-                LoraLayer.__init__(
-                    self, in_features=in_features, out_features=out_features)
+class AlphaLinear4bit(bnb.nn.Linear4bit, LoraLayer):
+# Lora implemented in a dense layer
+    def __init__(
+        self,
+        adapter_name,
+        in_features,
+        out_features,
+        r: int = 0,
+        lora_alpha: int = 1,
+        lora_dropout: float = 0.0,
+        **kwargs,
+    ):
+        bnb.nn.Linear4bit.__init__(
+            self,
+            in_features,
+            out_features,
+            bias=kwargs.get("bias", True),
+            compute_dtype=kwargs.get("compute_dtype", torch.float32),
+            compress_statistics=kwargs.get(
+                "compress_statistics", True),
+            quant_type=kwargs.get("quant_type", "nf4"),
+        )
+        LoraLayer.__init__(
+            self, in_features=in_features, out_features=out_features)
 
-                # Freezing the pre-trained weight matrix
-                self.weight.requires_grad = False
+        # Freezing the pre-trained weight matrix
+        self.weight.requires_grad = False
+        self.preprocessed = False
 
-                init_lora_weights = kwargs.pop("init_lora_weights", True)
-                self.update_layer(adapter_name, r, lora_alpha,
-                                  lora_dropout, init_lora_weights)
-                self.active_adapter = adapter_name
+        init_lora_weights = kwargs.pop("init_lora_weights", True)
+        self.update_layer(adapter_name, r, lora_alpha,
+                            lora_dropout, init_lora_weights)
+        self.active_adapter = adapter_name
 
-            def forward(self, x: torch.Tensor):
-                result = super().forward(x)
 
-                if self.disable_adapters:
-                    return result
+    def trim_task_vector(self, adapter_name, k, matrix):
+        magnitude = matrix.abs()
+        threshold = torch.kthvalue(magnitude.view(-1), int((1 - k / 100) * magnitude.numel())).values
+        matrix[torch.abs(matrix) < threshold] = 0
+        return matrix
+
+    def elect_sign_vector(self, adapter_name, matrix):
+        total_positive = (matrix[matrix > 0]).sum()
+        total_negative = (matrix[matrix < 0]).abs().sum()
+        matrix = torch.where(total_positive > total_negative, matrix.abs(), -matrix.abs())
+        return matrix
+
+    def disjoint_merge(self, adapter_name, matrix):
+        elected_sign = torch.sign(matrix.sum())
+        same_sign_weights = matrix[torch.sign(matrix) == elected_sign]
+        mean = same_sign_weights.mean()
+        matrix = torch.where(torch.sign(matrix) == elected_sign, mean, 0)
+        return matrix
+    def preprocess_weights(self, k):
+        if not self.preprocessed:
+            for adapter_name in self.lora_A.keys():
+                self.lora_A[adapter_name].weight.data = self.trim_task_vector(adapter_name, k, self.lora_A[adapter_name].weight.data)
+                self.lora_A[adapter_name].weight.data = self.elect_sign_vector(adapter_name, self.lora_A[adapter_name].weight.data)
+                self.lora_A[adapter_name].weight.data = self.disjoint_merge(adapter_name, self.lora_A[adapter_name].weight.data)
                 
-                else:
-                    result = result.clone()
-                    adapters = list(self.lora_A.keys())
+                self.lora_B[adapter_name].weight.data = self.trim_task_vector(adapter_name, k, self.lora_B[adapter_name].weight.data)
+                self.lora_B[adapter_name].weight.data = self.elect_sign_vector(adapter_name, self.lora_B[adapter_name].weight.data)
+                self.lora_B[adapter_name].weight.data = self.disjoint_merge(adapter_name, self.lora_B[adapter_name].weight.data)
+            
+            self.preprocessed = True
+    def forward(self, x: torch.Tensor):
+        result = super().forward(x)
+        # if not self.preprocessed:
+        #     self.preprocess_weights(25)
+        if not self.disable_adapters:
+            adapters = list(self.lora_A.keys())
 
-                    if not torch.is_autocast_enabled():
-                        expected_dtype = result.dtype
-                        x = x.to(self.lora_A[adapters[0]].weight.dtype)
+            if not torch.is_autocast_enabled():
+                expected_dtype = result.dtype
+                if x.dtype != torch.float32:
+                    x = x.float()
 
-                        for adapter_name in adapters:
-                            result += self.lora_B[adapter_name](
-                                self.lora_A[adapter_name](
-                                    self.lora_dropout[adapter_name](x))
-                            ).to(expected_dtype) \
-                            * self.scaling[adapter_name] 
-                    else:
+                for adapter_name in adapters:
+                    if self.scaling[adapter_name] != 0:
+                        
+                        temp_result = self.lora_B[adapter_name](
+                            self.lora_A[adapter_name](x)
+                        ).to(expected_dtype) * self.scaling[adapter_name]
+                        result = torch.add(result, temp_result)
+            else:
+                for adapter_name in adapters:
+                    if self.scaling[adapter_name] != 0:
+                        
+                        temp_result = self.lora_B[adapter_name](
+                            self.lora_A[adapter_name](x)
+                        ).to(expected_dtype) * self.scaling[adapter_name]
+                        result = torch.add(result, temp_result)
 
-                        for adapter_name in adapters:
-                            result += self.lora_B[adapter_name](
-                                    self.lora_A[adapter_name](
-                                        self.lora_dropout[adapter_name](x))
-                            ) * self.scaling[adapter_name] 
-
-                return result
+        return result

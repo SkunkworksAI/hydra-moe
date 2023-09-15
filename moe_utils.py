@@ -232,7 +232,7 @@ def get_base_inference_model(config, checkpoint_dirs):
 
 def load_gating32():
     global centroids
-    centroids_pickle_path = os.path.join(root_dir, 'hydra-moe','gating_v2', 'cluster_centers.pkl')
+    centroids_pickle_path = os.path.join('gating_v2', 'cluster_centers.pkl')
     with open(centroids_pickle_path, 'rb') as f:
         centroids_array = pickle.load(f)
     centroids = {f"cluster_{i}": centroids_array[i] for i in range(centroids_array.shape[0])}

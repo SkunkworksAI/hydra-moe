@@ -67,7 +67,7 @@ def inference():
 
     config = load_config(config_file)
 
-    cluster_nums = range(32)  
+    cluster_nums = range(2)  
     checkpoint_dirs = [
         {
             "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",

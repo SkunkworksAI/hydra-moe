@@ -64,13 +64,13 @@ from peft.utils import (
 )
 
 
-from multilora import (
-    MultiLoraModel as LoraModel
-)
-
-#from moe.alpha import (
+#from multilora import (
 #    MultiLoraModel as LoraModel
 #)
+
+from moe.alpha import (
+    AlphaLoraModel as LoraModel
+)
 
 PEFT_TYPE_TO_MODEL_MAPPING = {
     PeftType.LORA: LoraModel,
