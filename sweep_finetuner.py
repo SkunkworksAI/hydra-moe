@@ -4,7 +4,6 @@ import yaml
 import shutil
 from subprocess import call
 import os
-from attrdict import AttrDict
 
 def get_args():
     parser = argparse.ArgumentParser()
@@ -100,7 +99,7 @@ def finetune_sweep(args):
         )
 
         command = cuda_device_declaration + "python finetuner.py "
-        for key, value in vars(train_config).items():
+        for key, value in train_config.items():
             command += f"--{key} {value} "
         print(f"Command:\n{command}")
         call(command, shell=True)
