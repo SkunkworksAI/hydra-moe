@@ -536,7 +536,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
         return dataset
 
     # Load dataset.
-    dataset = load_data(args.dataset)
+    dataset = load_data(args.dataset, args.split)
     dataset = format_dataset(dataset, args.dataset_format)
 
     # Split train/eval, reduce size
