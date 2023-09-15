@@ -41,3 +41,5 @@ lora_dropout: 0.1
 weight_decay: 0.0
 seed: 0
 max_memory: 40000
+adapter_paths: "hydra-moe/configs/adapters_paths__hydra_poc.json"
+adapter_centroids: "hydra-moe/gating_v2/cluster_centers.pkl"

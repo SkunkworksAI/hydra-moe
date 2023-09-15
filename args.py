@@ -223,3 +223,19 @@ class GenerationArguments:
     length_penalty: Optional[float] = field(default=1.0)
     no_repeat_ngram_size: Optional[int] = field(default=0)
     truncation: Optional[bool] = field(default=True)
+
+
+@dataclass
+class TrainedExpertsArguments:
+    adapter_paths: Optional[str] = field(
+        default = None,
+        metadata = {
+            "help": "JSON with a dict of {adapter_name: adapter_path}"
+        }
+    )
+    adapter_centroids: Optional[str] = field(
+        default = "hydra-moe/gating_v2/cluster_centers.pkl",
+        metadata = {
+            "help": "path to the pickle file that has the centroid for each adapter"
+        }
+    )
