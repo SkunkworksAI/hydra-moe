@@ -53,6 +53,11 @@ class DataArguments:
         default="alpaca",
         metadata={"help": "Which dataset to finetune on. See datamodule for options."},
     )
+    split: str = field(
+        default="0",
+        metadata={"help": "Which config to finetune on. See datamodule for options."},
+    )
+    
     dataset_format: Optional[str] = field(
         default=None,
         metadata={
