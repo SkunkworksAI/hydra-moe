@@ -54,7 +54,7 @@ class DataArguments:
         metadata={"help": "Which dataset to finetune on. See datamodule for options."},
     )
     split: str = field(
-        default="0",
+        default="train",
         metadata={"help": "Which config to finetune on. See datamodule for options."},
     )
     
