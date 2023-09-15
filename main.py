@@ -77,7 +77,7 @@ def main():
 
     if not args.config:
         if args.finetune:
-            config_file = "configs/default_config.yaml"
+            config_file = "configs/default_ft_config.yaml"
         elif args.inference:
             config_file = "configs/inference_config.yaml"
         elif args.webui:
