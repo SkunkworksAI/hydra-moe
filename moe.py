@@ -39,33 +39,29 @@ generation_args = None
 
 def initialize_model():
     global model, tokenizer, base_model, base_tokenizer, generation_args
-    
+
     hfparser = transformers.HfArgumentParser((
-        ModelArguments, DataArguments, TrainingArguments, GenerationArguments
+        ModelArguments, DataArguments, TrainingArguments, GenerationArguments, TrainedExpertsArguments
     ))
-    model_args, data_args, training_args, generation_args, extra_args = \
+    model_args, data_args, training_args, generation_args, trained_exps_args, extra_args = \
         hfparser.parse_args_into_dataclasses(return_remaining_strings=True)
-    
+
     training_args.generation_config = transformers.GenerationConfig(**vars(generation_args))
     args = argparse.Namespace(
         **vars(model_args), **vars(data_args), **vars(training_args)
     )
     print(args)
 
-    cluster_nums = range(32)  
-    checkpoint_dirs = [
-        {
-            "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
-            "adapter_name": f"{str(cluster)}"
-        }
-        for cluster in cluster_nums
-    ]
     #Load PEFT adapters to model
-    print(checkpoint_dirs)
     print(args)
-    model, tokenizer = get_inference_model(args, checkpoint_dirs)
-    base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
-    
+    adapters_path = os.path.join(root_dir, trained_exps_args.adapter_paths)
+    with open(adapters_path) as f:
+        checkpoint_dirs = json.load(f)
+
+    base_model, tokenizer = get_base_inference_model(args)
+    model = get_inference_model(
+        args, checkpoint_dirs, base_inference_model=base_model)
+
     model.config.use_cache = False
     base_model.config.use_cache = False
     print('loaded model')
@@ -83,7 +79,7 @@ def initialize_model():
         print(k, v, v/total)
 
     logger.info("*** Predict ***")
-    
+
     # load_kmeans()
     # load_centroid()
     load_gating32()
@@ -120,7 +116,7 @@ def generate_output(instruction, model, alphas, tokenizer, generation_args, coun
         )
     output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
     return output
-    
+
 
 def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
     prompt = generate_prompt(instruction)
@@ -174,7 +170,7 @@ def inference():
         continue_prompt = input("Do you want to continue? (yes/no): ")
         if continue_prompt.lower() != "yes":
             break
-  
+
 
 
 if __name__ == "__main__":
