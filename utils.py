@@ -468,7 +468,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             dataset = DatasetDict({"train": dataset})
             return dataset
         elif "HydraLM" in dataset_name and config is not None:
-            return load_dataset(dataset_name, split=config)
+            return load_dataset(dataset_name, 'default', split=config)
+            
 
 
      

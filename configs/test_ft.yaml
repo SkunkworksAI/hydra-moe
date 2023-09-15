@@ -1,6 +1,7 @@
 model_name_or_path: "NousResearch/Nous-Hermes-llama-2-7b"
 dataset: "HydraLM/corpus_1_clustered_formatted"
 split: "config0"
+dataset_format: 'input-output'
 use_auth: true
 output_dir: "./output/7b_cluster00"
 run_name: "run_name"
