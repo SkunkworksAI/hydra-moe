@@ -334,7 +334,7 @@ def get_weights(instruction, method="combined"):
             load_gating32()
 
     if embedding_model is None:
-        embedding_model = SentenceTrnsformer('all-mpnet-base-v2', device="cuda")
+        embedding_model = SentenceTransformer('all-mpnet-base-v2', device="cuda")
 
     def normalize(probs):
         total = sum(probs)
