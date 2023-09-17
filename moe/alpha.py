@@ -8,6 +8,13 @@ from peft.tuners.lora import LoraLayer, Linear, Linear4bit, Linear8bitLt, Embedd
 
 from peft.import_utils import is_bnb_4bit_available, is_bnb_available
 
+
+def _get_submodules(model, key):
+    parent = model.get_submodule(".".join(key.split(".")[:-1]))
+    target_name = key.split(".")[-1]
+    target = model.get_submodule(key)
+    return parent, target, target_name
+
 class AlphaLoraModel(LoraModel):
     #Extends LoraModel to provide support for inference with multiple adapters at a time.
 

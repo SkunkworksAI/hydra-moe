@@ -77,7 +77,7 @@ def inference():
 
     #Load PEFT adapters to model
     model, tokenizer = get_inference_model(config, checkpoint_dirs)
-    #base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
+    base_model, base_tokenizer = get_base_inference_model(config, checkpoint_dirs)
     
     model.config.use_cache = False
     #base_model.config.use_cache = False
@@ -103,7 +103,7 @@ def inference():
             prompt += f"### Input:\n{input}\n\n"
         return prompt + "### Response:\n"
 
-    def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
+    def generate_output(instruction, model, alphas, tokenizer, config, count = 320):
         prompt = generate_prompt(instruction)
         inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
 
@@ -171,7 +171,7 @@ def inference():
         print("Predicted Weights:")
         [print(k, v) for k, v in weights.items()]
 
-        output = generate_output(instruction, model, alphas, tokenizer, generation_args)
+        output = generate_output(instruction, model, alphas, tokenizer, config)
         print("MoE Model:")
         print(output)
 
