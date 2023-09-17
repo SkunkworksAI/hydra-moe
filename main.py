@@ -1,4 +1,4 @@
-from utils import AttributeDict
+from model_utils import AttributeDict
 import argparse
 import os
 import subprocess

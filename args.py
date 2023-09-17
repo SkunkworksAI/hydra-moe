@@ -140,7 +140,7 @@ class TrainingArguments(transformers.Seq2SeqTrainingArguments):
         },
     )
     max_steps: int = field(
-        default=10000, metadata={"help": "How many optimizer update steps to take"}
+        default=None, metadata={"help": "How many optimizer update steps to take"}
     )
     weight_decay: float = field(
         default=0.0, metadata={"help": "The L2 weight decay rate of AdamW"}

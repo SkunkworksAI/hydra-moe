@@ -1,8 +1,6 @@
 model_name_or_path: "pankajmathur/orca_mini_v3_7b"
 dataset: "HydraLM/corpus_1_clustered_formatted"
 use_auth: true
-# output_dir: "./output_v2/7b_cluster030"
-#run_name: "partitioned_v3_standardized_030"
 format: "input-output"
 logging_steps: 10
 source_max_len: 2048
@@ -12,7 +10,7 @@ gradient_accumulation_steps: 4
 learning_rate: 0.0002
 save_strategy: "steps"
 data_seed: 42
-num_train_epochs: 2
+num_train_epochs: 3
 eval_steps: 200
 save_steps: 200
 save_total_limit: 10
@@ -47,5 +45,4 @@ weight_decay: 0.0
 seed: 0
 push_to_hub: true
 hub_strategy: "all_checkpoints"
-hub_model_id: "HydraLM"
 report_to: wandb

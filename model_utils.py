@@ -12,7 +12,7 @@ from tqdm import tqdm
 import logging
 import bitsandbytes as bnb
 import pandas as pd
-from preprocessing import alpaca_template, format
+from data_utils import alpaca_template, format_dataset
 from datasets import load_dataset, Dataset, DatasetDict
 
 import torch
@@ -28,7 +28,6 @@ from transformers import (
     LlamaTokenizer,
 )
 from datasets import load_dataset, Dataset
-
 
 from peft_model import PeftModel
 
@@ -267,9 +266,9 @@ def print_trainable_parameters(args, model):
 
 
 def smart_tokenizer_and_embedding_resize(
-    special_tokens_dict: Dict,
-    tokenizer: transformers.PreTrainedTokenizer,
-    model: transformers.PreTrainedModel,
+        special_tokens_dict: Dict,
+        tokenizer: transformers.PreTrainedTokenizer,
+        model: transformers.PreTrainedModel,
 ):
     """Resize tokenizer and embedding.
 
@@ -326,7 +325,7 @@ class DataCollatorForCausalLM(object):
         input_ids = []
         labels = []
         for tokenized_source, tokenized_target in zip(
-            tokenized_sources_with_prompt["input_ids"], tokenized_targets["input_ids"]
+                tokenized_sources_with_prompt["input_ids"], tokenized_targets["input_ids"]
         ):
             if not self.predict_with_generate:
                 input_ids.append(torch.tensor(tokenized_source + tokenized_target))
@@ -442,7 +441,7 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     """
 
-    def load_data(dataset_name, split = "train"):
+    def load_data(dataset_name, split="train"):
         if dataset_name == "alpaca":
             return load_dataset("tatsu-lab/alpaca")
         elif dataset_name == "alpaca-clean":
@@ -463,10 +462,10 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             dataset = load_dataset(dataset_name)[split]
             dataset = DatasetDict({"train": dataset})
             return dataset
-            
 
 
-     
+
+
         else:
             if os.path.exists(dataset_name):
                 try:
@@ -484,15 +483,15 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
 
     def format_dataset(dataset, dataset_format):
         if (
-            dataset_format == "alpaca"
-            or dataset_format == "alpaca-clean"
-            or (dataset_format is None and args.dataset in ["alpaca", "alpaca-clean"])
+                dataset_format == "alpaca"
+                or dataset_format == "alpaca-clean"
+                or (dataset_format is None and args.dataset in ["alpaca", "alpaca-clean"])
         ):
             dataset = dataset.map(
                 extract_alpaca_dataset, remove_columns=["instruction"]
             )
         elif dataset_format == "chip2" or (
-            dataset_format is None and args.dataset == "chip2"
+                dataset_format is None and args.dataset == "chip2"
         ):
             dataset = dataset.map(
                 lambda x: {
@@ -501,16 +500,16 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
                 }
             )
         elif dataset_format == "self-instruct" or (
-            dataset_format is None and args.dataset == "self-instruct"
+                dataset_format is None and args.dataset == "self-instruct"
         ):
             for old, new in [["prompt", "input"], ["completion", "output"]]:
                 dataset = dataset.rename_column(old, new)
         elif dataset_format == "hh-rlhf" or (
-            dataset_format is None and args.dataset == "hh-rlhf"
+                dataset_format is None and args.dataset == "hh-rlhf"
         ):
             dataset = dataset.map(lambda x: {"input": "", "output": x["chosen"]})
         elif dataset_format == "oasst1" or (
-            dataset_format is None and args.dataset == "oasst1"
+                dataset_format is None and args.dataset == "oasst1"
         ):
             dataset = dataset.map(
                 lambda x: {
@@ -548,8 +547,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
             )
             eval_dataset = dataset["test"]
         if (
-            args.max_eval_samples is not None
-            and len(eval_dataset) > args.max_eval_samples
+                args.max_eval_samples is not None
+                and len(eval_dataset) > args.max_eval_samples
         ):
             eval_dataset = eval_dataset.select(range(args.max_eval_samples))
         if args.group_by_length:
@@ -559,8 +558,8 @@ def make_data_module(tokenizer: transformers.PreTrainedTokenizer, args) -> Dict:
     if args.do_train:
         train_dataset = dataset["train"]
         if (
-            args.max_train_samples is not None
-            and len(train_dataset) > args.max_train_samples
+                args.max_train_samples is not None
+                and len(train_dataset) > args.max_train_samples
         ):
             train_dataset = train_dataset.select(range(args.max_train_samples))
         if args.group_by_length:
@@ -591,7 +590,7 @@ def get_last_checkpoint(checkpoint_dir):
         max_step = 0
         for filename in os.listdir(checkpoint_dir):
             if isdir(join(checkpoint_dir, filename)) and filename.startswith(
-                "checkpoint"
+                    "checkpoint"
             ):
                 max_step = max(max_step, int(filename.replace("checkpoint-", "")))
         if max_step == 0:

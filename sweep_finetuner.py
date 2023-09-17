@@ -5,6 +5,7 @@ import shutil
 from subprocess import call
 import os
 
+
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -49,10 +50,7 @@ def get_args():
         help="Path to default training args yaml file.",
     )
 
-
     return parser.parse_args()
-
-
 
 
 def load_config(config_file):
@@ -108,12 +106,7 @@ def finetune_sweep(args):
         # Run the sweep
         wandb.agent(sweep_id, run_finetune, project=args.project, entity=args.entity)
 
+
 if __name__ == "__main__":
     args = get_args()
     finetune_sweep(args)
-
-
-
-
-
-
