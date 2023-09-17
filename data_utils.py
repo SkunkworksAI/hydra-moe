@@ -93,3 +93,5 @@ def user_assistant_template(conversation, max_words=1400):
     return alpaca_template(conversation, max_words=max_words,
                            naming_map={"instruction": "User",
                                        "output": "Assistant"})
+
+

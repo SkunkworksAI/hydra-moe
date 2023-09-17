@@ -2,6 +2,7 @@ from datasets import load_dataset
 import numpy as np
 import argparse
 from FlagEmbedding import FlagModel
+from tramsformers import AutoTokenizer, AutoModel
 
 
 def get_args():
@@ -62,6 +63,27 @@ class BGE:
 
     def encode(self, texts, batch_size=256):
         return self.model.encode_queries(texts, batch_size=batch_size)
+
+
+class BGE_Tokenizer:
+    """For classification"""
+    def __init__(self, model_name, normalize_embeddings, max_length=512):
+        self.tokenizer = AutoTokenizer.from_pretrained(model_name)
+        self.model = AutoModel.from_pretrained(model_name)
+        self.model.eval()
+        self.normalize_embeddings = normalize_embeddings
+
+    def encode(self, texts):
+        encoded_input = self.tokenizer(texts, padding=True, truncation=True, return_tensors='pt', max_length=512)
+
+        with torch.no_grad():
+            model_output = self.model(**encoded_input)
+            embeddings = model_output[0][:, 0]  # CLS token pooling
+
+        if self.normalize_embeddings:
+            embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+
+        return embeddings
 
 
 def embed_dataset(args):
