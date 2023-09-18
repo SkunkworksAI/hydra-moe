@@ -2,7 +2,7 @@ from datasets import load_dataset
 import numpy as np
 import argparse
 from FlagEmbedding import FlagModel
-from tramsformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel
 
 
 def get_args():
