@@ -54,7 +54,7 @@ class CustomDataset(Dataset):
         label = int(self.labels[idx])  # convert label to integer
         if self.use_bge:
             # Use BGE to encode the text
-            encoding = self.encoder.encode([text])
+            encoding = self.tokenizer.encode([text])
             input_ids = encoding
             attention_mask = torch.ones(input_ids.shape, dtype=torch.long)
         else:
