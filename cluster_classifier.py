@@ -1,11 +1,6 @@
 import argparse
 from embed import BGE_Tokenizer
 import random
-from sklearn.model_selection import train_test_split
-from transformers import BertTokenizer, BertForSequenceClassification, Trainer, TrainingArguments
-from torch.utils.data import Dataset, DataLoader, RandomSampler, SequentialSampler
-import torch
-from datasets import load_dataset
 from transformers import AutoModelForSequenceClassification
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
