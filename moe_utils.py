@@ -16,6 +16,7 @@ from transformers import AutoTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
 from sentence_transformers import SentenceTransformer
+from embedding import BGE_Large
 
 cluster_nums = range(32)
 # model = None
@@ -113,10 +114,10 @@ def get_inference_model(config, checkpoint_dirs):
             print(f"Loading Expert #{adapter_name} from {checkpoint_dir}.")
             if checkpoint == checkpoint_dirs[0]:
                 # Load the first adapter with from_pretrained
-                model = PeftModel.from_pretrained(model, checkpoint_dir, adapter_name=adapter_name)
+                model = PeftModel.from_pretrained(model, checkpoint_dir + '@alpha', adapter_name=adapter_name)
             else:
                 # Load the remaining adapters with load_adapter
-                model.load_adapter(checkpoint_dir, adapter_name=adapter_name)
+                model.load_adapter(checkpoint_dir + '@alpha', adapter_name=adapter_name)
     """
        
     for name, module in model.named_modules():
@@ -334,7 +335,7 @@ def get_weights(instruction, method="combined"):
             load_gating32()
 
     if embedding_model is None:
-        embedding_model = SentenceTrnsformer('all-mpnet-base-v2', device="cuda")
+        embedding_model = SentenceTransformer('BAAI/bge-large-en', device="cuda")
 
     def normalize(probs):
         total = sum(probs)

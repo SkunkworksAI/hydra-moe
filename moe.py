@@ -53,12 +53,19 @@ def initialize_model():
     print(args)
 
     cluster_nums = range(32)  
+    # checkpoint_dirs = [
+    #     {
+    #         "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
+    #         "adapter_name": f"{str(cluster)}"
+    #     }
+    #     for cluster in cluster_nums
+    # ]
     checkpoint_dirs = [
-        {
-            "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
-            "adapter_name": f"{str(cluster)}"
-        }
-        for cluster in cluster_nums
+    {
+        "adapter_dir": f"HydraLM/expert-{str(cluster)}",
+        "adapter_name": f"{str(cluster)}"
+    }
+    for cluster in cluster_nums
     ]
     #Load PEFT adapters to model
     print(checkpoint_dirs)
