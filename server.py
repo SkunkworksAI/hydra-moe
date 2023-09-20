@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class InferenceConfig:
     method: Literal['combined','transformer','centroid'] = 'transformer'
-    alphaIn : int = 16
+    alphaIn : int = 2
     expertsK : int = 2
 
 default_config = InferenceConfig()
@@ -30,6 +30,7 @@ def create_stats_df(weights) -> pd.DataFrame:
     return df
 
 def get_model_output(moe_chat_history, base_chat_history, stats_chat_history, instruction, method, expertsK, max_tokens):
+    print(instruction)
     logger.info(moe_chat_history)
     logger.info(base_chat_history)
     logger.info(stats_chat_history)
@@ -48,7 +49,7 @@ def get_model_output(moe_chat_history, base_chat_history, stats_chat_history, in
     output = moe.generate_output(instruction, moe.model, alphas, moe.tokenizer, moe.generation_args, count=max_tokens)
     logger.info(output)
     
-    response = output.split("### User:\n")[1].split("</s>")[0].strip()
+    response = output.split("### Assistant:\n")[1].split("</s>")[0].strip()
     moe_chat_history.append((instruction, f"MoE Model ({method}): {response}"))
     
     output_base = moe.generate_base_output(instruction, moe.base_model, alphas, moe.base_tokenizer, moe.generation_args, count=max_tokens)

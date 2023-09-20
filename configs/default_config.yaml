@@ -19,7 +19,7 @@ do_train: true
 do_eval: true
 do_mmlu_eval: true
 lora_r: 64
-lora_alpha: 16
+lora_alpha: 2
 lora_modules: "all"
 double_quant: true
 quant_type: "nf4"
