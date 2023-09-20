@@ -233,7 +233,7 @@ def get_base_inference_model(config, checkpoint_dirs):
 
 def load_gating32():
     global centroids
-    centroids_pickle_path = os.path.join(root_dir, 'hydra-moe','gating_v2', 'cluster_centers.pkl')
+    centroids_pickle_path = os.path.join(root_dir, 'hydra-moe','gating_v3', 'cluster_centers.pkl')
     with open(centroids_pickle_path, 'rb') as f:
         centroids_array = pickle.load(f)
     centroids = {f"cluster_{i}": centroids_array[i] for i in range(centroids_array.shape[0])}
@@ -247,7 +247,7 @@ def chunk_and_get_embeddings(model, data_list, batch_size):
     chunks = chunk_list(data_list, batch_size)
     embeddings = []
     for chunk in chunks:
-        emb = model.encode(chunk)
+        emb = model.encode(chunk, normalize_embeddings=False)
         embeddings.append(emb)
     embeddings = np.vstack(embeddings)
     return embeddings
@@ -271,20 +271,18 @@ def select_adapter_classifier(instruction):
     global tokenizer
 
     if model_class is None:
-        model_path = os.path.join(root_dir, 'hydra-moe', 'gating_v2', 'model')
-
-        model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/e5-large-32-32000')
+        model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/bge-large-classifier-32')
         model_class = model_class.to('cuda')
 
 
     if torch.cuda.is_available():
         model_class = model_class.to('cuda')
     if tokenizer is None:
-        tokenizer = AutoTokenizer.from_pretrained('intfloat/e5-large-v2')
+        tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en')
 
 
     encoding = tokenizer.encode_plus(
-        "query: " + instruction, # e5 requires "query: " to be added to the beginning for classification
+        instruction,
         add_special_tokens=True,
         max_length=512,
         return_token_type_ids=False,
