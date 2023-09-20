@@ -48,11 +48,11 @@ def get_model_output(moe_chat_history, base_chat_history, stats_chat_history, in
     output = moe.generate_output(instruction, moe.model, alphas, moe.tokenizer, moe.generation_args, count=max_tokens)
     logger.info(output)
     
-    response = output.split("### Response:\n")[1].split("</s>")[0].strip()
+    response = output.split("### User:\n")[1].split("</s>")[0].strip()
     moe_chat_history.append((instruction, f"MoE Model ({method}): {response}"))
     
     output_base = moe.generate_base_output(instruction, moe.base_model, alphas, moe.base_tokenizer, moe.generation_args, count=max_tokens)
-    response_base = output_base.split("### Response:\n")[1].split("</s>")[0].strip()
+    response_base = output_base.split("### Assistant:\n")[1].split("</s>")[0].strip()
     base_chat_history.append((instruction, f"Base Model ({method}): {response_base}"))
     
     return moe_chat_history, base_chat_history, stats_chat_history
