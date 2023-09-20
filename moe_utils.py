@@ -33,18 +33,18 @@ def get_inference_model(config, checkpoint_dirs):
     n_gpus = torch.cuda.device_count()
     #dmax_memory = f'{config.max_memory}MB'
     #max_memory = {i: max_memory for i in range(n_gpus)}
-    device_map = "auto"
+    device_map = "cpu"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
         local_rank = int(os.environ.get('LOCAL_RANK', '0'))
-        device_map = {'': local_rank}
+        device_map = {'cpu'}
         #max_memory = {'': max_memory[local_rank]}
 
     print(f'loading base model {config.model_name_or_path}...')
 
-    compute_dtype = torch.float16
-    torch_dtype = torch.float16
+    compute_dtype = torch.bfloat16
+    torch_dtype = torch.bfloat16
     model = AutoModelForCausalLM.from_pretrained(
         config.model_name_or_path,
         load_in_4bit=config.bits == 4,
@@ -63,7 +63,7 @@ def get_inference_model(config, checkpoint_dirs):
 
         torch_dtype=torch_dtype,
     )
-    if compute_dtype == torch.float16 and config.bits == 4:
+    if compute_dtype == torch.bfloat16 and config.bits == 4:
         major, minor = torch.cuda.get_device_capability()
         if major >= 8:
             print('='*80)
@@ -141,22 +141,22 @@ def get_base_inference_model(config, checkpoint_dirs):
     n_gpus = torch.cuda.device_count()
     #dmax_memory = f'{config.max_memory}MB'
     #max_memory = {i: max_memory for i in range(n_gpus)}
-    device_map = "auto"
+    device_map = "cpu"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
         local_rank = int(os.environ.get('LOCAL_RANK', '0'))
-        device_map = {'': local_rank}
+        device_map = {'cpu'}
         #max_memory = {'': max_memory[local_rank]}
 
     print(f'loading base model {config.model_name_or_path}...')
 
-    compute_dtype = torch.float16
-    torch_dtype = torch.float16
+    compute_dtype = torch.bfloat16
+    torch_dtype = torch.bfloat16
     model = AutoModelForCausalLM.from_pretrained(
         config.model_name_or_path,
-        load_in_4bit=config.bits == 4,
-        load_in_8bit=config.bits == 8,
+        # load_in_4bit=config.bits == 4,
+        # load_in_8bit=config.bits == 8,
         device_map=device_map,
         #max_memory=max_memory,
         quantization_config=BitsAndBytesConfig(
@@ -171,7 +171,7 @@ def get_base_inference_model(config, checkpoint_dirs):
 
         torch_dtype=torch_dtype,
     )
-    if compute_dtype == torch.float16 and config.bits == 4:
+    if compute_dtype == torch.bfloat16 and config.bits == 4:
         major, minor = torch.cuda.get_device_capability()
         if major >= 8:
             print('='*80)
@@ -273,11 +273,11 @@ def select_adapter_classifier(instruction):
         model_path = os.path.join(root_dir, 'hydra-moe', 'gating_v2', 'model')
 
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/e5-large-32-32000')
-        model_class = model_class.to('cuda')
+        model_class = model_class.to('cpu')
 
 
     if torch.cuda.is_available():
-        model_class = model_class.to('cuda')
+        model_class = model_class.to('cpu')
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained('intfloat/e5-large-v2')
 
@@ -334,7 +334,7 @@ def get_weights(instruction, method="combined"):
             load_gating32()
 
     if embedding_model is None:
-        embedding_model = SentenceTrnsformer('all-mpnet-base-v2', device="cuda")
+        embedding_model = SentenceTransformer('all-mpnet-base-v2', device="cpu")
 
     def normalize(probs):
         total = sum(probs)

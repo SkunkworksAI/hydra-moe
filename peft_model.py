@@ -596,11 +596,10 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
 
         if use_safetensors:
             adapters_weights = safe_load_file(
-                filename, device="cuda" if torch.cuda.is_available() else "cpu")
+                filename, device="cpu")
         else:
             adapters_weights = torch.load(
-                filename, map_location=torch.device(
-                    "cuda" if torch.cuda.is_available() else "cpu")
+                filename, map_location=torch.device("cpu")
             )
 
         # load the weights into the model

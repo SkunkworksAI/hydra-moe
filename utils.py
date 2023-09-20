@@ -14,7 +14,7 @@ import bitsandbytes as bnb
 import pandas as pd
 
 import torch
-import transformers
+
 from torch.nn.utils.rnn import pad_sequence
 import argparse
 from transformers import (
@@ -57,7 +57,7 @@ def download_checkpoint(model_name, checkpoint_name, output_dir):
     return output_path
 
 
-torch.backends.cuda.matmul.allow_tf32 = True
+#torch.backends.cuda.matmul.allow_tf32 = True
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +118,7 @@ def get_accelerate_model(args, checkpoint_dir):
     n_gpus = torch.cuda.device_count()
     max_memory = f"{args.max_memory_MB}MB"
     max_memory = {i: max_memory for i in range(n_gpus)}
-    device_map = "auto"
+    device_map = "cpu"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get("LOCAL_RANK") is not None:

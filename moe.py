@@ -21,10 +21,7 @@ import torch
 import transformers
 from torch.nn.utils.rnn import pad_sequence
 import argparse
-from transformers import (
-    set_seed,
-    Seq2SeqTrainer,
-)
+import transformers
 
 torch.backends.cuda.matmul.allow_tf32 = True
 
@@ -64,10 +61,10 @@ def initialize_model():
     print(checkpoint_dirs)
     print(args)
     model, tokenizer = get_inference_model(args, checkpoint_dirs)
-    base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
+    # base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
     
     model.config.use_cache = False
-    base_model.config.use_cache = False
+    # base_model.config.use_cache = False
     print('loaded model')
     set_seed(args.seed)
 
@@ -97,7 +94,7 @@ def generate_prompt(instruction, input=None):
 
 def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
     prompt = generate_prompt(instruction)
-    inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
+    inputs = tokenizer(prompt, return_tensors="pt").to('cpu')
 
     print(f'Updating alphas to {alphas}')
     model.update_alphas(alphas)
@@ -124,7 +121,7 @@ def generate_output(instruction, model, alphas, tokenizer, generation_args, coun
 
 def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
     prompt = generate_prompt(instruction)
-    inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
+    inputs = tokenizer(prompt, return_tensors="pt").to('cpu')
 
     with torch.no_grad():
         generation_output = model.generate(
@@ -167,9 +164,9 @@ def inference():
         print("MoE Model:")
         print(output)
 
-        output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
-        print("Base Model:")
-        print(output_base)
+#         output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
+#         print("Base Model:")
+#         print(output_base)
 
         continue_prompt = input("Do you want to continue? (yes/no): ")
         if continue_prompt.lower() != "yes":
