@@ -96,10 +96,8 @@ def initialize_model():
     load_gating32()
 
 def generate_prompt(instruction, input=None):
-    prompt = f"### Instruction:\n{instruction}\n\n"
-    if input:
-        prompt += f"### Input:\n{input}\n\n"
-    return prompt + "### Response:\n"
+    prompt = f"### User:\n{instruction.strip()}\n\n"
+    return prompt + "### Assistant:\n"
 
 
 def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
@@ -157,11 +155,15 @@ def inference():
         # Get user input
         instruction = input("Enter your instruction: ")
         methodIn = input("Enter your mode: transformer, centroid, combined ")
-        alphaIn = 16
+        alphaIn = 8
         expertsK = 3
 
         #methods: combined, transformer, multi, kmeans, centroid
-        weights = get_weights(instruction, methodIn)
+        try:
+            weights = get_weights(instruction, methodIn)
+        except:
+            print("Switching to transformer")
+            weights = get_weights(instruction, "transformer")
         # weights = get_weights(instruction, "transformer")
 
         alphas = mult_weights_by_alpha(weights, int(alphaIn), int(expertsK) )
@@ -178,7 +180,7 @@ def inference():
         print("Base Model:")
         print(output_base)
 
-        continue_prompt = input("Do you want to continue? (yes/no): ")
+        continue_prompt = input("Do you want to continue? (yes/no): ").strip()
         if continue_prompt.lower() != "yes":
             break
   
