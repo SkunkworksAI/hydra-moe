@@ -5,6 +5,6 @@ if [ ! -d "gating_v2" ]; then
     git lfs clone https://huggingface.co/HydraLM/gating_v2
 fi
 
-python3 /code/main.py --inference
+python3 main.py --inference
 echo "Container idle.."
 tail -f /dev/null

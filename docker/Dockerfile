@@ -27,6 +27,7 @@ RUN --mount=type=cache,target=~/.cache/pip \
 # # Set working directory to /app
 
 COPY --chown=appuser:appuser  . /hydra-moe
+# WORKDIR /hydra-moe
 WORKDIR /hydra-moe
 RUN chmod +x ./setup_moe.sh & chmod +x ./docker/run.sh
 RUN sh ./setup_moe.sh
