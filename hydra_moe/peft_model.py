@@ -225,12 +225,12 @@ class PeftModel(PushToHubMixin, torch.nn.Module):
     ):
 
         MODEL_TYPE_TO_PEFT_MODEL_MAPPING = {
-            "SEQ_CLS": PeftModelForSequenceClassification,
-            "SEQ_2_SEQ_LM": PeftModelForSeq2SeqLM,
+            #"SEQ_CLS": PeftModelForSequenceClassification,
+            #"SEQ_2_SEQ_LM": PeftModelForSeq2SeqLM,
             "CAUSAL_LM": PeftModelForCausalLM,
-            "TOKEN_CLS": PeftModelForTokenClassification,
-            "QUESTION_ANS": PeftModelForQuestionAnswering,
-            "FEATURE_EXTRACTION": PeftModelForFeatureExtraction,
+            #"TOKEN_CLS": PeftModelForTokenClassification,
+            #"QUESTION_ANS": PeftModelForQuestionAnswering,
+            #"FEATURE_EXTRACTION": PeftModelForFeatureExtraction,
         }
 
         r"""

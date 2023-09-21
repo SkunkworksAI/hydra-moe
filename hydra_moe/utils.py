@@ -37,7 +37,7 @@ from transformers import (
 
 from transformers import BertTokenizer, AutoModel, AutoTokenizer, BertForSequenceClassification,AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import load_dataset, Dataset
-from peft_model import PeftModel
+from .peft_model import PeftModel
 
 from peft import (
     prepare_model_for_kbit_training,

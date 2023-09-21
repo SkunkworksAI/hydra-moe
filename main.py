@@ -29,7 +29,7 @@ def inference_runner(config_file):
     else:
         dataset_name = config.dataset
     config.output_dir = f"{config.output_dir}_{model_name}_{dataset_name}"
-    command = "python moe_new.py "
+    command = "python moe.py "
     for key, value in vars(config).items():
         command += f"--{key} {value} "
     print(f"Command:\n{command.split(' ')}")

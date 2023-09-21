@@ -1,8 +1,10 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-from utils import *
-from args import *
-from utils import get_inference_model, get_base_inference_model
+#from utils import *
+from hydra_moe.inference import get_inference_model, get_base_inference_model
+from hydra_moe.router import get_weights, mult_weights_by_alpha
+from hydra_moe.args import *
+
 from collections import defaultdict
 import copy
 import json
@@ -17,8 +19,6 @@ import logging
 import bitsandbytes as bnb
 import pandas as pd
 import yaml
-
-from utils import get_inference_model, get_base_inference_model
 
 import torch
 import transformers

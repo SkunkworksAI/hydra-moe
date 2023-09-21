@@ -18,7 +18,6 @@ import json
 import pickle
 
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from peft_model import PeftModel
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
 from sentence_transformers import SentenceTransformer
@@ -38,7 +37,7 @@ from transformers import (
 )
 from transformers import BertTokenizer, AutoModel, AutoTokenizer, BertForSequenceClassification,AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import load_dataset, Dataset
-from peft_model import PeftModel
+from .peft_model import PeftModel
 
 from peft import (
     prepare_model_for_kbit_training,
@@ -63,10 +62,12 @@ root_dir = os.path.abspath(os.pardir)
 gte = None
 
 
+ROUTER_FILES_PATH = 'router_files'
+
 
 def load_gating32():
     global centroids
-    centroids_pickle_path = os.path.join('gating_v2', 'cluster_centers.pkl')
+    centroids_pickle_path = os.path.join(ROUTER_FILES_PATH, 'cluster_centers.pkl')
     with open(centroids_pickle_path, 'rb') as f:
         centroids_array = pickle.load(f)
     centroids = {f"cluster_{i}": centroids_array[i] for i in range(centroids_array.shape[0])}
@@ -104,7 +105,7 @@ def select_adapter_classifier(instruction):
     global tokenizer
 
     if model_class is None:
-        model_path = os.path.join(root_dir, 'hydra-moe', 'gating_v2', 'model')
+        model_path = os.path.join(root_dir, 'hydra-moe', ROUTER_FILES_PATH, 'model')
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/e5-large-32-32000')
         model_class = model_class.to('cuda')
 
