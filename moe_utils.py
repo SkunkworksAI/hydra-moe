@@ -335,6 +335,7 @@ def get_weights(instruction, method="centroids"):
     def normalize(probs):
         total = sum(probs)
         return [prob / total for prob in probs]
+
     def normalize_neg(probs):
         min_val = min(probs)
         shifted_probs = [prob - min_val for prob in probs]  
