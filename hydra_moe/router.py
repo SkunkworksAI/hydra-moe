@@ -51,6 +51,18 @@ import os
 import subprocess
 import torch.hub
 
+cluster_nums = range(32)
+# model = None
+model_class = None
+tokenizer = None
+centroids = None
+embedding_model = None
+kmeans_centroids = {}
+#load tfidf vectorizer
+root_dir = os.path.abspath(os.pardir)  
+gte = None
+
+
 
 def load_gating32():
     global centroids
@@ -93,7 +105,6 @@ def select_adapter_classifier(instruction):
 
     if model_class is None:
         model_path = os.path.join(root_dir, 'hydra-moe', 'gating_v2', 'model')
-
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/e5-large-32-32000')
         model_class = model_class.to('cuda')
 

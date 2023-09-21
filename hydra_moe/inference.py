@@ -3,21 +3,24 @@ import torch
 from transformers import (
     AutoModelForCausalLM, 
     AutoTokenizer, 
-    LlamaTokenizer
+    LlamaTokenizer,
+    BitsAndBytesConfig,
 )
+
+from .peft_model import PeftModel
 
 def get_inference_model(config, checkpoint_dirs):
 
     n_gpus = torch.cuda.device_count()
-    #dmax_memory = f'{config.max_memory}MB'
-    #max_memory = {i: max_memory for i in range(n_gpus)}
+    dmax_memory = f'{config.max_memory}MB'
+    max_memory = {i: max_memory for i in range(n_gpus)}
     device_map = "auto"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
         local_rank = int(os.environ.get('LOCAL_RANK', '0'))
         device_map = {'': local_rank}
-        #max_memory = {'': max_memory[local_rank]}
+        max_memory = {'': max_memory[local_rank]}
 
     print(f'loading base model {config.model_name_or_path}...')
 

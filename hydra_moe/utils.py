@@ -16,7 +16,7 @@ import torch.nn.functional as F
 import pickle
 
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from peft_model import PeftModel
+from .peft_model import PeftModel
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
 from sentence_transformers import SentenceTransformer
@@ -34,6 +34,7 @@ from transformers import (
     LlamaTokenizer,
 
 )
+
 from transformers import BertTokenizer, AutoModel, AutoTokenizer, BertForSequenceClassification,AutoModelForSequenceClassification, Trainer, TrainingArguments
 from datasets import load_dataset, Dataset
 from peft_model import PeftModel
@@ -47,7 +48,6 @@ from peft.tuners.lora import LoraLayer
 from transformers.trainer_utils import PREFIX_CHECKPOINT_DIR
 import os
 import subprocess
-
 import torch.hub
 
 

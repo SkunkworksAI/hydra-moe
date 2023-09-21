@@ -18,7 +18,7 @@ import json
 import pickle
 
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from peft_model import PeftModel
+from .peft_model import PeftModel
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
 from sentence_transformers import SentenceTransformer
@@ -51,6 +51,22 @@ import os
 import subprocess
 import torch.hub
 
+torch.backends.cuda.matmul.allow_tf32 = True
+logger = logging.getLogger(__name__)
+
+IGNORE_INDEX = -100
+DEFAULT_PAD_TOKEN = "[PAD]"
+
+cluster_nums = range(32)
+# model = None
+model_class = None
+tokenizer = None
+centroids = None
+embedding_model = None
+kmeans_centroids = {}
+#load tfidf vectorizer
+root_dir = os.path.abspath(os.pardir)  
+gte = None
 
 def download_checkpoint(model_name, checkpoint_name, output_dir):
     url = f"https://huggingface.co/{model_name}/resolve/main/{checkpoint_name}"
@@ -58,14 +74,6 @@ def download_checkpoint(model_name, checkpoint_name, output_dir):
     torch.hub.download_url_to_file(url, output_path)
     print(f"Downloaded checkpoint: {output_path}")
     return output_path
-
-torch.backends.cuda.matmul.allow_tf32 = True
-
-logger = logging.getLogger(__name__)
-
-IGNORE_INDEX = -100
-DEFAULT_PAD_TOKEN = "[PAD]"
-
 
 def find_all_linear_names(args, model):
     cls = (
