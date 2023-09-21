@@ -66,7 +66,7 @@ def inference():
 
     config = load_config(config_file)
 
-    cluster_nums = range(2)  
+    cluster_nums = range(32)  
     checkpoint_dirs = [
         {
             "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
@@ -80,7 +80,7 @@ def inference():
     base_model, base_tokenizer = get_base_inference_model(config, checkpoint_dirs)
     
     model.config.use_cache = False
-    #base_model.config.use_cache = False
+    base_model.config.use_cache = False
     print('loaded model')
     #set_seed(args.seed)
 
