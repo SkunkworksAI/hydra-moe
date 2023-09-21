@@ -321,7 +321,7 @@ def combine_all_predictions(transformer_pred, transformer_conf, centroid_pred, k
 
     return votes.index(max(votes)), ranked_classes
 
-def get_weights(instruction, method="combined"):
+def get_weights(instruction, method="centroids"):
     global centroids
     global gte
     global embedding_model
@@ -342,11 +342,9 @@ def get_weights(instruction, method="combined"):
         return [prob / total for prob in shifted_probs]  
 
     if method == "centroid":
-        
         probs, adapter_names = select_adapter_centroid32(instruction, centroids, embedding_model)
         d = {}
         probs = normalize(probs)
-
 
         print(probs)
         for i, name in enumerate(adapter_names):
@@ -357,46 +355,35 @@ def get_weights(instruction, method="combined"):
 
             d[name] = probs[i][0][0]
 
-   
     elif method == "transformer":
         probs, adapter_names = select_adapter_classifier(instruction)
         d = {adapter_names[i]: probs[0][i] for i in range(len(probs[0]))}
         print(d)
 
     elif method == "combined":
-
         probs, adapter_names = select_adapter_centroid32(instruction, centroids, embedding_model)
         probs = normalize(probs)
         d = {}
-        # print(probs)
 
         for i, name in enumerate(adapter_names):
             if '_' in name:
                 name = name.split('_')[1]
             if name.startswith('0') and len(name) > 1:
                 name = name[1:]
-
             d[name] = probs[i][0][0]
-  
-        
 
         probs, adapter_names  = select_adapter_classifier(instruction)
 
         for i, name in enumerate(adapter_names):
             d[name] += probs[0][i]
 
-        
         _sum = sum([i for i in d.values()])
         for k, v in d.items():
             d[k] = v / _sum
-        
     else:
         raise ValueError("Invalid method. Choose from 'centroid', 'kmeans', 'multi', 'transformer', 'combined'")
-    # print(d)
+
     return d
-
-
-
 
 def mult_weights_by_alpha(weights: dict, alpha, k=3):
     top_k_values = sorted(weights.values(), reverse=True)[:k]
@@ -411,5 +398,5 @@ def mult_weights_by_alpha(weights: dict, alpha, k=3):
         weights[key] = (weights[key] - min_weight) / (max_weight - min_weight)
     for key in weights:
         weights[key] *= alpha
-    # print(weights)
+
     return weights
