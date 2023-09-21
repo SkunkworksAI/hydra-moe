@@ -134,8 +134,6 @@ def get_inference_model(config, checkpoint_dirs):
     return model, tokenizer
 
 
-
-
 def get_base_inference_model(config, checkpoint_dirs):
 
     n_gpus = torch.cuda.device_count()

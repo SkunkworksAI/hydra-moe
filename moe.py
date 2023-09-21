@@ -1,9 +1,8 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-from moe_utils import *
 from utils import *
 from args import *
-from utils import get_accelerate_model
+from utils import get_inference_model, get_base_inference_model
 from collections import defaultdict
 import copy
 import json
@@ -19,7 +18,7 @@ import bitsandbytes as bnb
 import pandas as pd
 import yaml
 
-from moe_utils import get_inference_model
+from utils import get_inference_model, get_base_inference_model
 
 import torch
 import transformers
@@ -69,7 +68,7 @@ def inference():
     )
     print(args)
 
-    cluster_nums = range(32)  
+    cluster_nums = range(1)  
     checkpoint_dirs = [
         {
             "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
@@ -156,10 +155,10 @@ def inference():
         output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
         return output
 
-    load_kmeans()
-    load_centroid()
+    #load_kmeans()
+    #load_centroid()
+    #load_gating32()
 
-    load_gating32()
     while True:
         # Get user input
         instruction = input("Enter your instruction: ")
@@ -176,7 +175,7 @@ def inference():
         print("Predicted Weights:")
         [print(k, v) for k, v in weights.items()]
 
-        output = generate_output(instruction, model, alphas, tokenizer, config)
+        output = generate_output(instruction, model, alphas, tokenizer, generation_args)
         print("MoE Model:")
         print(output)
 
