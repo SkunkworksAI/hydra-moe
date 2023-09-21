@@ -1,7 +1,9 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
-from utils import *
 from moe_utils import *
+from utils import *
+from args import *
+from utils import get_accelerate_model
 from collections import defaultdict
 import copy
 import json
@@ -54,17 +56,18 @@ def load_config(config_file):
                 print(exc)
 
 def inference():
+
+    hfparser = transformers.HfArgumentParser((
+        ModelArguments, DataArguments, TrainingArguments, GenerationArguments
+    ))
+    model_args, data_args, training_args, generation_args, extra_args = \
+        hfparser.parse_args_into_dataclasses(return_remaining_strings=True)
     
-    parser = argparse.ArgumentParser(
-            prog="moe.py",
-            description="run MoE inference")
-
-    parser.add_argument('--config_file', type=str, default="configs/inference_config.yaml", help="path of config file. e.g. configs/inference_config.yaml")
-
-    args = parser.parse_args()
-    config_file = args.config_file
-
-    config = load_config(config_file)
+    training_args.generation_config = transformers.GenerationConfig(**vars(generation_args))
+    args = argparse.Namespace(
+        **vars(model_args), **vars(data_args), **vars(training_args)
+    )
+    print(args)
 
     cluster_nums = range(32)  
     checkpoint_dirs = [
@@ -74,15 +77,16 @@ def inference():
         }
         for cluster in cluster_nums
     ]
-
     #Load PEFT adapters to model
-    model, tokenizer = get_inference_model(config, checkpoint_dirs)
-    base_model, base_tokenizer = get_base_inference_model(config, checkpoint_dirs)
+    print(checkpoint_dirs)
+    print(args)
+    model, tokenizer = get_inference_model(args, checkpoint_dirs)
+    base_model, base_tokenizer = get_base_inference_model(args, checkpoint_dirs)
     
     model.config.use_cache = False
     base_model.config.use_cache = False
     print('loaded model')
-    #set_seed(args.seed)
+    set_seed(args.seed)
 
     # Verifying the datatypes and parameter counts before training.
     dtypes = {}
@@ -116,14 +120,14 @@ def inference():
                 input_ids=inputs["input_ids"],
                 max_length=count,
                 max_new_tokens = count,
-                #do_sample=config.do_sample,
-                #num_beams=generation_args.num_beams,
-                #temperature=generation_args.temperature,
-                #top_k=generation_args.top_k,
-                #top_p=generation_args.top_p,
-                #repetition_penalty=generation_args.repetition_penalty,
-                #length_penalty=generation_args.length_penalty,
-                #no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
+                do_sample=config.do_sample,
+                num_beams=generation_args.num_beams,
+                temperature=generation_args.temperature,
+                top_k=generation_args.top_k,
+                top_p=generation_args.top_p,
+                repetition_penalty=generation_args.repetition_penalty,
+                length_penalty=generation_args.length_penalty,
+                no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
                 num_return_sequences=1,
             )
         output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
@@ -151,8 +155,10 @@ def inference():
             )
         output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
         return output
-    # load_kmeans()
-    # load_centroid()
+
+    load_kmeans()
+    load_centroid()
+
     load_gating32()
     while True:
         # Get user input
@@ -163,7 +169,6 @@ def inference():
 
         #methods: combined, transformer, multi, kmeans, centroid
         weights = get_weights(instruction, methodIn)
-        # weights = get_weights(instruction, "transformer")
 
         alphas = mult_weights_by_alpha(weights, int(alphaIn), int(expertsK) )
         # alphas = mult_weights_by_alpha(weights, training_args.lora_alpha)
@@ -175,9 +180,9 @@ def inference():
         print("MoE Model:")
         print(output)
 
-        #output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
-        #print("Base Model:")
-        #print(output_base)
+        output_base = generate_base_output(instruction, base_model, alphas, base_tokenizer, generation_args)
+        print("Base Model:")
+        print(output_base)
 
         continue_prompt = input("Do you want to continue? (yes/no): ")
         if continue_prompt.lower() != "yes":
