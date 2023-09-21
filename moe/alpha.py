@@ -41,7 +41,7 @@ class AlphaLoraModel(LoraModel):
 
             parent, target, target_name = _get_submodules(self.model, key)
 
-            if isinstance(target, LoraLayer):
+            if isinstance(target, AlphaLoraLayer):
                 target._update_alphas(alphas_dict)
 
     def _create_new_module(self, lora_config, adapter_name, target):
@@ -129,7 +129,6 @@ class AlphaLoraModel(LoraModel):
     def set_adapter(self, adapter_name):
         return NotImplemented
 
-
     def merge_adapter(self):
         return NotImplemented
 
@@ -150,7 +149,7 @@ class AlphaLoraModel(LoraModel):
                     if "lora" not in key]
         for key in key_list:
             _, target, _ = _get_submodules(self.model, key)
-            if isinstance(target, LoraLayer):
+            if isinstance(target, AlphaLoraLayer):
                 for attr in [
                     "r",
                     "lora_alpha",
@@ -194,6 +193,14 @@ class AlphaLoraLayer(LoraLayer):
 class AlphaLinear(Linear):
     # hydra-moe-alpha implemented in a linear layer.
 
+    def _update_alphas(self, new_alphas: dict):
+        # dont update entire layer, only alphas
+        self.lora_alpha = new_alphas
+        adapters = list(self.lora_A.keys())
+        for adapter_name in adapters:
+            self.scaling[adapter_name] = self.lora_alpha[adapter_name] / self.r[adapter_name]
+
+
     def forward(self, x: torch.Tensor):
         previous_dtype = x.dtype
         result = F.linear(x, transpose(
@@ -216,6 +223,14 @@ class AlphaLinear(Linear):
 class AlphaEmbedding(Embedding):
     # hydra-moe-alpha implemented in an embedding layer.
 
+    def _update_alphas(self, new_alphas: dict):
+        # dont update entire layer, only alphas
+        self.lora_alpha = new_alphas
+        adapters = list(self.lora_A.keys())
+        for adapter_name in adapters:
+            self.scaling[adapter_name] = self.lora_alpha[adapter_name] / self.r[adapter_name]
+
+
     def forward(self, x: torch.Tensor):
         result = nn.Embedding.forward(self, x)
         adapters = list(self.lora_A.keys())
@@ -237,6 +252,24 @@ class AlphaEmbedding(Embedding):
 
 class AlphaLinear8bitLt(Linear8bitLt):
     # hydra-moe-alpha implemented in a dense layer.
+
+    def __init__(self,
+        adapter_name,
+        in_features,
+        out_features,
+        r: int = 0,
+        lora_alpha: int = 1,
+        lora_dropout: float = 0.0,
+        **kwargs):
+        super(Linear8bitLt, self).__init__(*kwargs[0])
+
+    def _update_alphas(self, new_alphas: dict):
+        # dont update entire layer, only alphas
+        self.lora_alpha = new_alphas
+        adapters = list(self.lora_A.keys())
+        for adapter_name in adapters:
+            self.scaling[adapter_name] = self.lora_alpha[adapter_name] / self.r[adapter_name]
+
 
     def forward(self, x: torch.Tensor):
         result = super().forward(x)
@@ -281,6 +314,12 @@ class AlphaLinear4bit(Linear4bit):
         **kwargs):
         super(Linear4bit, self).__init__(*kwargs[0])
 
+    def _update_alphas(self, new_alphas: dict):
+        # dont update entire layer, only alphas
+        self.lora_alpha = new_alphas
+        adapters = list(self.lora_A.keys())
+        for adapter_name in adapters:
+            self.scaling[adapter_name] = self.lora_alpha[adapter_name] / self.r[adapter_name]
 
     def forward(self, x: torch.Tensor):
         result = super().forward(x)
