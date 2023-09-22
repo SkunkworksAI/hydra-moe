@@ -4,8 +4,7 @@
 from hydra_moe.inference import get_inference_model, get_base_inference_model
 from hydra_moe.router import get_weights, mult_weights_by_alpha
 from hydra_moe.args import *
-from args import *
-from utils import *
+from hydra_moe.utils import *
 from collections import defaultdict
 import copy
 import json

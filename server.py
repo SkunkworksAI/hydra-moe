@@ -1,4 +1,4 @@
-import moe 
+import hydra_moe.alpha as moe
 import gradio as gr
 import time
 import pandas as pd

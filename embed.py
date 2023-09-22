@@ -2,6 +2,7 @@ from datasets import load_dataset
 import numpy as np
 import argparse
 from FlagEmbedding import FlagModel
+import torch
 from transformers import AutoTokenizer, AutoModel
 
 

@@ -1,7 +1,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 from hydra_moe.args import *
-from utils import *
+from hydra_moe.utils import *
 from collections import defaultdict
 import copy
 import json
