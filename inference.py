@@ -4,7 +4,8 @@
 from hydra_moe.inference import get_inference_model, get_base_inference_model
 from hydra_moe.router import get_weights, mult_weights_by_alpha
 from hydra_moe.args import *
-
+from args import *
+from utils import *
 from collections import defaultdict
 import copy
 import json
@@ -38,43 +39,36 @@ model = None
 tokenizer = None
 centroids = {}
 kmeans_centroids = {}
+generation_args = None
 
-class Config:
-    def __init__(self, dictionary):
-        for k, v in dictionary.items():
-            setattr(self, k, v)
-
-
-def load_config(config_file):
-        with open(config_file, 'r') as stream:
-            try:
-                config_dict = yaml.safe_load(stream)
-                config = Config(config_dict)
-                return config
-            except yaml.YAMLError as exc:
-                print(exc)
-
-def inference():
-
+def initialize_model():
+    global model, tokenizer, base_model, base_tokenizer, generation_args
+    
     hfparser = transformers.HfArgumentParser((
         ModelArguments, DataArguments, TrainingArguments, GenerationArguments
     ))
     model_args, data_args, training_args, generation_args, extra_args = \
         hfparser.parse_args_into_dataclasses(return_remaining_strings=True)
-    
     training_args.generation_config = transformers.GenerationConfig(**vars(generation_args))
     args = argparse.Namespace(
         **vars(model_args), **vars(data_args), **vars(training_args)
     )
     print(args)
 
-    cluster_nums = range(1)  
+    cluster_nums = range(32)  
+    # checkpoint_dirs = [
+    #     {
+    #         "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
+    #         "adapter_name": f"{str(cluster)}"
+    #     }
+    #     for cluster in cluster_nums
+    # ]
     checkpoint_dirs = [
-        {
-            "adapter_dir": f"HydraLM/Nous-Hermes-llama-2-7b_7b_cluster{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}_partitioned_v3_standardized_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}",
-            "adapter_name": f"{str(cluster)}"
-        }
-        for cluster in cluster_nums
+    {
+        "adapter_dir": f"HydraLM/expert-{str(cluster)}",
+        "adapter_name": f"{str(cluster)}"
+    }
+    for cluster in cluster_nums
     ]
     #Load PEFT adapters to model
     print(checkpoint_dirs)
@@ -99,75 +93,79 @@ def inference():
         print(k, v, v/total)
 
     logger.info("*** Predict ***")
+    # load_kmeans()
+    # load_centroid()
+    load_gating32()
+
+def generate_prompt(instruction, input=None):
+    prompt = f"### User:\n{instruction.strip()}\n\n"
+    return prompt + "### Assistant:\n"
+
+
+def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
+    prompt = generate_prompt(instruction)
+    inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
+
+    print(f'Updating alphas to {alphas}')
+    model.update_alphas(alphas)
+
+
+    with torch.no_grad():
+        generation_output = model.generate(
+            input_ids=inputs["input_ids"],
+            max_length=count,
+            max_new_tokens = count,
+            do_sample=generation_args.do_sample,
+            num_beams=generation_args.num_beams,
+            temperature=generation_args.temperature,
+            top_k=generation_args.top_k,
+            top_p=generation_args.top_p,
+            repetition_penalty=generation_args.repetition_penalty,
+            length_penalty=generation_args.length_penalty,
+            no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
+            num_return_sequences=1,
+        )
+    output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
+    return output
     
-    def generate_prompt(instruction, input=None):
-        prompt = f"### Instruction:\n{instruction}\n\n"
-        if input:
-            prompt += f"### Input:\n{input}\n\n"
-        return prompt + "### Response:\n"
 
-    def generate_output(instruction, model, alphas, tokenizer, config, count = 320):
-        prompt = generate_prompt(instruction)
-        inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
+def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
+    prompt = generate_prompt(instruction)
+    inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
 
-        print(f'Updating alphas to {alphas}')
-        model.update_alphas(alphas)
- 
+    with torch.no_grad():
+        generation_output = model.generate(
+            input_ids=inputs["input_ids"],
+            max_length=count,
+            max_new_tokens = count,
+            do_sample=generation_args.do_sample,
+            num_beams=generation_args.num_beams,
+            temperature=generation_args.temperature,
+            top_k=generation_args.top_k,
+            top_p=generation_args.top_p,
+            repetition_penalty=generation_args.repetition_penalty,
+            length_penalty=generation_args.length_penalty,
+            no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
+            num_return_sequences=1,
+        )
+    output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
+    return output
 
-        with torch.no_grad():
-            generation_output = model.generate(
-                input_ids=inputs["input_ids"],
-                max_length=count,
-                max_new_tokens = count,
-                do_sample=config.do_sample,
-                num_beams=generation_args.num_beams,
-                temperature=generation_args.temperature,
-                top_k=generation_args.top_k,
-                top_p=generation_args.top_p,
-                repetition_penalty=generation_args.repetition_penalty,
-                length_penalty=generation_args.length_penalty,
-                no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
-                num_return_sequences=1,
-            )
-        output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
-        return output
-    
-
-    def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
-        prompt = generate_prompt(instruction)
-        inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
-
-        with torch.no_grad():
-            generation_output = model.generate(
-                input_ids=inputs["input_ids"],
-                max_length=count,
-                max_new_tokens = count,
-                do_sample=generation_args.do_sample,
-                num_beams=generation_args.num_beams,
-                temperature=generation_args.temperature,
-                top_k=generation_args.top_k,
-                top_p=generation_args.top_p,
-                repetition_penalty=generation_args.repetition_penalty,
-                length_penalty=generation_args.length_penalty,
-                no_repeat_ngram_size=generation_args.no_repeat_ngram_size,
-                num_return_sequences=1,
-            )
-        output = tokenizer.decode(generation_output[0], skip_special_tokens=False)
-        return output
-
-    #load_kmeans()
-    #load_centroid()
-    #load_gating32()
-
+def inference():
     while True:
         # Get user input
         instruction = input("Enter your instruction: ")
         methodIn = input("Enter your mode: transformer, centroid, combined ")
-        alphaIn = 16
+        alphaIn = 2
         expertsK = 3
 
         #methods: combined, transformer, multi, kmeans, centroid
-        weights = get_weights(instruction, methodIn)
+        try:
+            weights = get_weights(instruction, methodIn)
+        except:
+            print("Switching to transformer")
+            weights = get_weights(instruction, "transformer")
+        # weights = get_weights(instruction, "transformer")
 
         alphas = mult_weights_by_alpha(weights, int(alphaIn), int(expertsK) )
         # alphas = mult_weights_by_alpha(weights, training_args.lora_alpha)
@@ -183,9 +181,12 @@ def inference():
         print("Base Model:")
         print(output_base)
 
-        continue_prompt = input("Do you want to continue? (yes/no): ")
+        continue_prompt = input("Do you want to continue? (yes/no): ").strip()
         if continue_prompt.lower() != "yes":
             break
+  
+
 
 if __name__ == "__main__":
+    initialize_model()
     inference()

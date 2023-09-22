@@ -49,6 +49,8 @@ def train():
     training_args.generation_config = transformers.GenerationConfig(
         **vars(generation_args)
     )
+
+
     args = argparse.Namespace(
         **vars(model_args), **vars(data_args), **vars(training_args)
     )
@@ -63,6 +65,7 @@ def train():
     model.config.use_cache = False
     print("loaded model")
     set_seed(args.seed)
+
 
     data_module = make_data_module(tokenizer=tokenizer, args=args)
 

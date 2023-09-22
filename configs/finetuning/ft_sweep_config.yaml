@@ -1,0 +1,12 @@
+wandb_args:
+  name: qlora_experts
+  method: grid
+  metric:
+    name: eval_loss
+    goal: minimize
+
+  parameters:
+    cluster:
+      min: 0
+      max: 31
+
