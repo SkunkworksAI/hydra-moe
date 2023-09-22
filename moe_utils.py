@@ -1,17 +1,18 @@
-from transformers import BertTokenizer, AutoModel, AutoTokenizer, BertForSequenceClassification,AutoModelForSequenceClassification, Trainer, TrainingArguments
+from transformers import BertTokenizer, AutoModel, AutoTokenizer, BertForSequenceClassification, \
+    AutoModelForSequenceClassification, Trainer, TrainingArguments
 import torch
 import torch.nn.functional as F
 import json
 import pickle
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from utils import *
+from model_utils import *
 from moe_utils import *
 import json
 import os
 import numpy as np
 from peft_model import PeftModel
-#from moe.alpha import PeftModel
+# from moe.alpha import PeftModel
 from transformers import AutoTokenizer
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
@@ -25,22 +26,22 @@ tokenizer = None
 centroids = None
 embedding_model = None
 kmeans_centroids = {}
-#load tfidf vectorizer
-root_dir = os.path.abspath(os.pardir)  
+# load tfidf vectorizer
+root_dir = os.path.abspath(os.pardir)
 gte = None
 
-def get_inference_model(config, checkpoint_dirs):
 
+def get_inference_model(config, checkpoint_dirs):
     n_gpus = torch.cuda.device_count()
-    #dmax_memory = f'{config.max_memory}MB'
-    #max_memory = {i: max_memory for i in range(n_gpus)}
+    # dmax_memory = f'{config.max_memory}MB'
+    # max_memory = {i: max_memory for i in range(n_gpus)}
     device_map = "auto"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
         local_rank = int(os.environ.get('LOCAL_RANK', '0'))
         device_map = {'': local_rank}
-        #max_memory = {'': max_memory[local_rank]}
+        # max_memory = {'': max_memory[local_rank]}
 
     print(f'loading base model {config.model_name_or_path}...')
 
@@ -51,7 +52,7 @@ def get_inference_model(config, checkpoint_dirs):
         load_in_4bit=config.bits == 4,
         load_in_8bit=config.bits == 8,
         device_map=device_map,
-        #max_memory=max_memory,
+        # max_memory=max_memory,
         quantization_config=BitsAndBytesConfig(
             load_in_4bit=config.bits == 4,
             load_in_8bit=config.bits == 8,
@@ -67,9 +68,9 @@ def get_inference_model(config, checkpoint_dirs):
     if compute_dtype == torch.float16 and config.bits == 4:
         major, minor = torch.cuda.get_device_capability()
         if major >= 8:
-            print('='*80)
+            print('=' * 80)
             print('Your GPU supports bfloat16, you can accelerate training with the argument --bf16')
-            print('='*80)
+            print('=' * 80)
 
     setattr(model, 'model_parallel', True)
     setattr(model, 'is_parallelizable', True)
@@ -81,8 +82,8 @@ def get_inference_model(config, checkpoint_dirs):
     tokenizer = AutoTokenizer.from_pretrained(
         config.model_name_or_path,
         padding_side="right",
-        use_fast=False, # Fast tokenizer giving issues.
-        tokenizer_type='llama' if 'llama' in config.model_name_or_path else None, # Needed for HF name change
+        use_fast=False,  # Fast tokenizer giving issues.
+        tokenizer_type='llama' if 'llama' in config.model_name_or_path else None,  # Needed for HF name change
     )
     if tokenizer._pad_token is None:
         smart_tokenizer_and_embedding_resize(
@@ -97,14 +98,14 @@ def get_inference_model(config, checkpoint_dirs):
         # Note also that `model.config.pad_token_id` is 0 which corresponds to `<unk>` token.
         print('Adding special tokens.')
         tokenizer.add_special_tokens({
-                "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
-                "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
-                "unk_token": tokenizer.convert_ids_to_tokens(
-                    model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
-                ),
+            "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
+            "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
+            "unk_token": tokenizer.convert_ids_to_tokens(
+                model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
+            ),
         })
-    
-    #model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
+
+    # model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
 
     if checkpoint_dirs is not None:
         print("Loading Experts.")
@@ -131,24 +132,21 @@ def get_inference_model(config, checkpoint_dirs):
                 if args.bf16 and module.weight.dtype == torch.float32:
                     module = module.to(torch.bfloat16)
     """
-    
+
     return model, tokenizer
 
 
-
-
 def get_base_inference_model(config, checkpoint_dirs):
-
     n_gpus = torch.cuda.device_count()
-    #dmax_memory = f'{config.max_memory}MB'
-    #max_memory = {i: max_memory for i in range(n_gpus)}
+    # dmax_memory = f'{config.max_memory}MB'
+    # max_memory = {i: max_memory for i in range(n_gpus)}
     device_map = "auto"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
         local_rank = int(os.environ.get('LOCAL_RANK', '0'))
         device_map = {'': local_rank}
-        #max_memory = {'': max_memory[local_rank]}
+        # max_memory = {'': max_memory[local_rank]}
 
     print(f'loading base model {config.model_name_or_path}...')
 
@@ -159,7 +157,7 @@ def get_base_inference_model(config, checkpoint_dirs):
         load_in_4bit=config.bits == 4,
         load_in_8bit=config.bits == 8,
         device_map=device_map,
-        #max_memory=max_memory,
+        # max_memory=max_memory,
         quantization_config=BitsAndBytesConfig(
             load_in_4bit=config.bits == 4,
             load_in_8bit=config.bits == 8,
@@ -175,9 +173,9 @@ def get_base_inference_model(config, checkpoint_dirs):
     if compute_dtype == torch.float16 and config.bits == 4:
         major, minor = torch.cuda.get_device_capability()
         if major >= 8:
-            print('='*80)
+            print('=' * 80)
             print('Your GPU supports bfloat16, you can accelerate training with the argument --bf16')
-            print('='*80)
+            print('=' * 80)
 
     setattr(model, 'model_parallel', True)
     setattr(model, 'is_parallelizable', True)
@@ -189,8 +187,8 @@ def get_base_inference_model(config, checkpoint_dirs):
     tokenizer = AutoTokenizer.from_pretrained(
         config.model_name_or_path,
         padding_side="right",
-        use_fast=False, # Fast tokenizer giving issues.
-        tokenizer_type='llama' if 'llama' in config.model_name_or_path else None, # Needed for HF name change
+        use_fast=False,  # Fast tokenizer giving issues.
+        tokenizer_type='llama' if 'llama' in config.model_name_or_path else None,  # Needed for HF name change
     )
     if tokenizer._pad_token is None:
         smart_tokenizer_and_embedding_resize(
@@ -206,14 +204,14 @@ def get_base_inference_model(config, checkpoint_dirs):
         # Note also that `model.config.pad_token_id` is 0 which corresponds to `<unk>` token.
         print('Adding special tokens.')
         tokenizer.add_special_tokens({
-                "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
-                "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
-                "unk_token": tokenizer.convert_ids_to_tokens(
-                    model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
-                ),
+            "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
+            "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
+            "unk_token": tokenizer.convert_ids_to_tokens(
+                model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
+            ),
         })
-    
-    #model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
+
+    # model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
 
     """
        
@@ -228,8 +226,9 @@ def get_base_inference_model(config, checkpoint_dirs):
                 if args.bf16 and module.weight.dtype == torch.float32:
                     module = module.to(torch.bfloat16)
     """
-    
+
     return model, tokenizer
+
 
 def load_gating32():
     global centroids
@@ -241,7 +240,8 @@ def load_gating32():
 
 
 def chunk_list(input_list, chunk_size):
-    return [input_list[i : i + chunk_size] for i in range(0, len(input_list), chunk_size)]
+    return [input_list[i: i + chunk_size] for i in range(0, len(input_list), chunk_size)]
+
 
 def chunk_and_get_embeddings(model, data_list, batch_size):
     chunks = chunk_list(data_list, batch_size)
@@ -251,6 +251,7 @@ def chunk_and_get_embeddings(model, data_list, batch_size):
         embeddings.append(emb)
     embeddings = np.vstack(embeddings)
     return embeddings
+
 
 def select_adapter_centroid32(instruction, centroids, embedding_model):
     instruction_embedding = chunk_and_get_embeddings(embedding_model, [instruction], 1)
@@ -274,12 +275,10 @@ def select_adapter_classifier(instruction):
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/bge-large-classifier-32')
         model_class = model_class.to('cuda')
 
-
     if torch.cuda.is_available():
         model_class = model_class.to('cuda')
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en')
-
 
     encoding = tokenizer.encode_plus(
         instruction,
@@ -300,18 +299,19 @@ def select_adapter_classifier(instruction):
     #    f"cluster_{str(cluster).zfill(3) if cluster >= 10 else str(cluster).zfill(2)}" for cluster in cluster_nums
     # ]
     adapter_names = [
-       f"{str(cluster)}" for cluster in cluster_nums
+        f"{str(cluster)}" for cluster in cluster_nums
     ]
 
     predicted_class = adapter_names[predicted_indices.item()]
 
     return probs, adapter_names
 
-def combine_all_predictions(transformer_pred, transformer_conf, centroid_pred, kmeans_pred, multi_pred, embeds_pred, transformer_weight=2):
-   
+
+def combine_all_predictions(transformer_pred, transformer_conf, centroid_pred, kmeans_pred, multi_pred, embeds_pred,
+                            transformer_weight=2):
     adapter_names = [
-       f"{str(cluster)}" for cluster in cluster_nums
-        ]
+        f"{str(cluster)}" for cluster in cluster_nums
+    ]
     votes = [0] * len(adapter_names)
 
     votes[transformer_pred] += transformer_weight
@@ -324,13 +324,14 @@ def combine_all_predictions(transformer_pred, transformer_conf, centroid_pred, k
 
     return votes.index(max(votes)), ranked_classes
 
+
 def get_weights(instruction, method="combined"):
     global centroids
     global gte
     global embedding_model
     if centroids is None:
-            print("LOADING CENTROIDS")
-            load_gating32()
+        print("LOADING CENTROIDS")
+        load_gating32()
 
     if embedding_model is None:
         embedding_model = SentenceTransformer('BAAI/bge-large-en', device="cuda")
@@ -338,18 +339,18 @@ def get_weights(instruction, method="combined"):
     def normalize(probs):
         total = sum(probs)
         return [prob / total for prob in probs]
+
     def normalize_neg(probs):
         min_val = min(probs)
-        shifted_probs = [prob - min_val for prob in probs]  
+        shifted_probs = [prob - min_val for prob in probs]
         total = sum(shifted_probs)
-        return [prob / total for prob in shifted_probs]  
+        return [prob / total for prob in shifted_probs]
 
     if method == "centroid":
-        
+
         probs, adapter_names = select_adapter_centroid32(instruction, centroids, embedding_model)
         d = {}
         probs = normalize(probs)
-
 
         print(probs)
         for i, name in enumerate(adapter_names):
@@ -360,7 +361,7 @@ def get_weights(instruction, method="combined"):
 
             d[name] = probs[i][0][0]
 
-   
+
     elif method == "transformer":
         probs, adapter_names = select_adapter_classifier(instruction)
         d = {adapter_names[i]: probs[0][i] for i in range(len(probs[0]))}
@@ -380,25 +381,20 @@ def get_weights(instruction, method="combined"):
                 name = name[1:]
 
             d[name] = probs[i][0][0]
-  
-        
 
-        probs, adapter_names  = select_adapter_classifier(instruction)
+        probs, adapter_names = select_adapter_classifier(instruction)
 
         for i, name in enumerate(adapter_names):
             d[name] += probs[0][i]
 
-        
         _sum = sum([i for i in d.values()])
         for k, v in d.items():
             d[k] = v / _sum
-        
+
     else:
         raise ValueError("Invalid method. Choose from 'centroid', 'kmeans', 'multi', 'transformer', 'combined'")
     # print(d)
     return d
-
-
 
 
 def mult_weights_by_alpha(weights: dict, alpha, k=3):

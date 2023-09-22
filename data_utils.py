@@ -1,105 +1,95 @@
-from datasets import Dataset, load_dataset
+from datasets import load_dataset, DatasetDict, Dataset
 import pandas as pd
 
 
-def add_unique_conversation_id(example, dataset_name):
-    example["unique_conversation_id"] = f"{dataset_name}_{example['conversation_id']}"
-    return example
+def load_or_use_dataset(data):
+    """Return a dataset from a path or use the provided one."""
+    return load_dataset(data) if isinstance(data, str) else data
 
 
-def sort_Dataset_by_multiple_keys(dataset, keys):
+def sort_by_keys(dataset, keys):
+    """Sort dataset by multiple keys."""
     df = dataset.to_pandas()
     df = df.sort_values(by=keys)
     return Dataset.from_pandas(df)
 
 
-def format(path_or_dataset, template_func, filter_key="unique_conversation_id",
-           sort_keys=["dataset_id", "conversation_id", "message_id"], split="train"):
-    dataset = load_dataset(path_or_dataset) if isinstance(path_or_dataset, str) else path_or_dataset
-    data = dataset[split] if split else dataset
-    data = sort_Dataset_by_multiple_keys(data, sort_keys)
+def format_dataset(path_or_dataset, template_func, filter_key="unique_conversation_id",
+                   sort_keys=["dataset_id", "conversation_id", "message_id"], split=None, clustered=False):
+    """Format the dataset."""
+    dataset = load_or_use_dataset(path_or_dataset)
 
-    formatted = []
-    dataset_has_instructions = has_instructions(data)
+    if clustered:
+        datasets = {cluster_name: cluster_data for cluster_name, cluster_data in dataset.items()}
+    else:
+        datasets = {"train": dataset.get(split, dataset)}
 
-    current_filter_key = data[0][filter_key]
-    conversation = []
+    formatted_datasets = {}
 
-    for message in data:
-        if message[filter_key] != current_filter_key:
-            formatted += template_func(conversation, dataset_has_instructions)
-            current_filter_key = message[filter_key]
-            conversation = []
-        conversation += [message]
+    for name, data in datasets.items():
+        data = sort_by_keys(data, sort_keys)
+        formatted = []
+        current_filter_key = data[0][filter_key]
+        conversation = []
 
-    return Dataset.from_pandas(pd.DataFrame(data=formatted))
+        for message in data:
+            if message[filter_key] != current_filter_key:
+                formatted += template_func(conversation)
+                current_filter_key = message[filter_key]
+                conversation = []
+
+            conversation.append(message)
+
+        formatted_datasets[name] = Dataset.from_pandas(pd.DataFrame(data=formatted))
+
+    return DatasetDict(formatted_datasets)
 
 
-def combine_datasets(datasets, dataset_names, add_unique_id=False):
+def combine_datasets(datasets, dataset_names):
     def add_dataset_name(example, dataset_name):
-        example["dataset_id"] = dataset_name
-        if add_unique_id:
-            example = add_unique_conversation_id(example, dataset_name)
+        example['dataset_id'] = dataset_name
         return example
 
-    new_datasets = []
-    # add column relating to index of dataset
-    for idx, dataset in enumerate(datasets):
-        if "train" in dataset.keys():
-            dataset = dataset["train"]
-        short_name = "_".join(dataset_names[idx].split("/")[1].split("_")[:-1])
-        new_datasets.append(dataset.map(
-            lambda example: add_dataset_name(example, short_name)
-        ))
-
-    combined = list(new_datasets[0])
-    for dataset in new_datasets[1:]:
+    combined = []
+    for dataset, name in zip(datasets, dataset_names):
+        dataset = dataset.map(lambda example: add_dataset_name(example, name))
         combined += list(dataset)
+
     return Dataset.from_pandas(pd.DataFrame(data=combined))
 
 
-def has_instructions(dataset):
-    return "instruction" in set(dataset["message_type"])
+def alpaca_template(conversation, max_words=1400, naming_map=None):
+    """Format conversation using user and assistant template."""
 
-
-def cluster_template(
-        conversation, dataset_has_instructions="not used for this template"
-):
     conversation = sorted(conversation, key=lambda x: x["message_id"])
-    combined_text = ""
-    for message in conversation:
-        combined_text += f"{message['message']}\n"
-    return [
-        {"text": combined_text, "conversation_id": conversation[0]["conversation_id"],
-         "dataset_id": conversation[0]["dataset_id"],
-         "unique_conversation_id": conversation[0]["unique_conversation_id"]}
-    ]
 
+    output_text = conversation.pop()['message']
+    input_text = ""
 
-def alpaca_template(conversation, dataset_has_instructions, max_words=1400):
-    # sort by message_id
-    conversation = sorted(conversation, key=lambda x: x["message_id"])
-    output = f"{conversation.pop()['message']}"
-    input = ""
+    if naming_map is None:
+        naming_map = {"instruction": "Instruction",
+                      "input": "Input",
+                      "output": "Response"}
 
     for message in conversation:
-        if message["message_type"] == "instruction":
-            input += f"### Instruction:\n{message['message']}\n\n"
-        elif message["message_type"] == "output":
-            input += f"### Response:\n{message['message']}\n"
-        elif (
-                message["message_type"] == "input"
-                and dataset_has_instructions
-                and message["message"] != ""
-        ):
-            input += f"### Input:\n{message['message']}\n\n"
-        elif not dataset_has_instructions:
-            input += f"### Instruction:\n{message['message']}\n\n"
-    input += "### Response:\n"
+        text = message['message'].strip()
+        if message["message_type"] == "input" and text == "":
+            continue
+        else:
+            input_text += f"### {naming_map[message['message_type']]}:\n{text}\n\n"
 
-    if len(input.split(" ")) > max_words:
-        input = " ".join(input.split()[-max_words:])
+    input_text += f"### {naming_map['output']}:\n"
 
-    instruction_start = input.find("### Instruction:")
-    input = input[instruction_start:]
-    return [{"input": input, "output": output}]
+    if len(input_text.split()) > max_words:
+        input_text = " ".join(input_text.split(" ")[-max_words:])
+        instruction_start = input_text.find(f"### {naming_map['instruction']}:")
+        input_text = input_text[instruction_start:]
+
+    return [{"input": input_text, "output": output_text}]
+
+
+def user_assistant_template(conversation, max_words=1400):
+    """Format conversation using user and assistant template."""
+    return alpaca_template(conversation, max_words=max_words,
+                           naming_map={"instruction": "User",
+                                       "output": "Assistant"})
