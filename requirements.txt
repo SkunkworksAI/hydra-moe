@@ -2,9 +2,9 @@ datasets
 trl
 scipy
 pyyaml
-bitsandbyte
+bitsandbytes
 transformers
-peft
+peft==0.4.0
 accelerate
 einops
 evaluate

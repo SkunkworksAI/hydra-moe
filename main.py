@@ -1,3 +1,4 @@
+from hydra_moe.peft_model import PeftModel
 from hydra_moe.utils import AttributeDict
 import argparse
 import os

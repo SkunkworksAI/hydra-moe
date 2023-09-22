@@ -1,5 +1,6 @@
+#!/bin/bash
 pip install -r requirements.txt
-curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
-apt-get install git-lfs
+curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
+sudo apt-get install git-lfs
 git lfs install
-git lfs clone https://huggingface.co/HydraLM/gating_v2 router_files
+git clone https://huggingface.co/HydraLM/gating_v2 router_files

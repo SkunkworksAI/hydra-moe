@@ -1,3 +1,4 @@
+from hydra_moe.peft_model import PeftModel
 from collections import defaultdict
 import copy
 import json
@@ -16,7 +17,7 @@ import torch.nn.functional as F
 import pickle
 
 from sklearn.metrics.pairwise import cosine_similarity, euclidean_distances, manhattan_distances
-from .peft_model import PeftModel
+#from peft_model import PeftModel
 from sklearn.metrics.pairwise import cosine_similarity
 from torch import Tensor
 from sentence_transformers import SentenceTransformer
