@@ -46,10 +46,10 @@ seed: 0
 push_to_hub: true
 hub_strategy: "all_checkpoints"
 report_to: wandb
-# special_tokens:
-#   bos_token: "<s>"
-#   eos_token: "<|im_end|>"
-#   unk_token: "<unk>"
+special_tokens:
+  bos_token: "<s>"
+  eos_token: "<|im_end|>"
+  unk_token: "<unk>"
 # tokens:
 #   - "<|im_start|>"
 #   - "<|im_end|>"
