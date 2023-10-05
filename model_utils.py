@@ -197,7 +197,7 @@ def get_accelerate_model(args, checkpoint_dir):
         # Note that these are present in the vocabulary.
         # Note also that `model.config.pad_token_id` is 0 which corresponds to `<unk>` token.
         print("Adding special tokens.")
-        print(model.config.eos_token_id)
+        print(tokenizer.convert_ids_to_tokens(model.config.bos_token_id))
         tokenizer.add_special_tokens(
             {
                 "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
