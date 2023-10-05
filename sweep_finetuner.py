@@ -80,7 +80,7 @@ def finetune_sweep(args):
         cluster_n = wandb_config.pop("cluster")
         model_name = f"mistralic-expert-{cluster_n}"
         wandb.run.name = model_name
-        split_name = f"{cluster_n}"
+        split_name = f"config{cluster_n}"
 
         train_config["run_name"] = model_name
         train_config["output_dir"] = f"experts/{model_name}"
