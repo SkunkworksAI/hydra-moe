@@ -1,7 +1,8 @@
 model_name_or_path: "SkunkworksAI/Mistralic-7B-1"
-dataset: "HydraLM/SkunkData-Corpus-Clusters-001"
+dataset: "HydraLM/corpus_1_clustered_formatted"
 use_auth: true
-dataset_format: "input-output"
+dataset-format: "input-output"
+format: "input-output"
 logging_steps: 10
 source_max_len: 8192
 target_max_len: 8192
@@ -10,6 +11,7 @@ gradient_accumulation_steps: 4
 learning_rate: 0.0002
 save_strategy: "steps"
 data_seed: 42
+max_steps: -1
 num_train_epochs: 3
 eval_steps: 200
 save_steps: 200
@@ -17,7 +19,6 @@ save_total_limit: 10
 evaluation_strategy: "steps"
 eval_dataset_size: 1024
 max_eval_samples: 1000
-max_steps: -1
 per_device_eval_batch_size: 2
 do_train: true
 do_eval: true
@@ -47,9 +48,10 @@ seed: 0
 push_to_hub: true
 hub_strategy: "all_checkpoints"
 report_to: wandb
-# special_tokens:
-#   bos_token: "<s>"
-#   eos_token: "<|im_end|>"
-#   unk_token: "<unk>"
+special_tokens:
+  bos_token: "<s>"
+  eos_token: "<|im_end|>"
+  unk_token: "<unk>"
 # tokens:
 #   - "<|im_start|>"
+#   - "<|im_end|>"
