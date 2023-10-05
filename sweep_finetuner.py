@@ -39,14 +39,14 @@ def get_args():
     parser.add_argument(
         "--entity",
         type=str,
-        default="llama-moe",
+        default="pharaouk",
         help="Wandb entity name.",
     )
 
     parser.add_argument(
         "--default_training_config",
         type=str,
-        default="configs/finetuning/default_ft_config.yaml",
+        default="configs/finetuning/mistral_config.yaml",
         help="Path to default training args yaml file.",
     )
 
@@ -78,7 +78,7 @@ def finetune_sweep(args):
         wandb_config = dict(wandb.config)
 
         cluster_n = wandb_config.pop("cluster")
-        model_name = f"expert-{cluster_n}"
+        model_name = f"mistralic-expert-{cluster_n}"
         wandb.run.name = model_name
         split_name = f"config{cluster_n}"
 
@@ -94,9 +94,10 @@ def finetune_sweep(args):
             "export CUDA_VISIBLE_DEVICES=" + ",".join([str(x) for x in args.gpu]) + "; "
             if args.gpu
             else ""
-        )
+        )   
+        print("Running Finetune...")
 
-        command = cuda_device_declaration + "python finetuner.py "
+        command = cuda_device_declaration + "python3 finetuner.py "
         for key, value in train_config.items():
             command += f"--{key} {value} "
         print(f"Command:\n{command}")
