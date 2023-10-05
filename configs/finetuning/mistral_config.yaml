@@ -17,6 +17,7 @@ save_total_limit: 10
 evaluation_strategy: "steps"
 eval_dataset_size: 1024
 max_eval_samples: 1000
+max_steps: -1
 per_device_eval_batch_size: 2
 do_train: true
 do_eval: true

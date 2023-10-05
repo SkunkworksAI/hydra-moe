@@ -201,7 +201,7 @@ def get_accelerate_model(args, checkpoint_dir):
             {
                 "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
                 "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
-                "unk_token": "<unk>"
+                "unk_token":  tokenizer.convert_ids_to_tokens("<unk>")
             }
         )
         
