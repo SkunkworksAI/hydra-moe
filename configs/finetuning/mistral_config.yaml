@@ -1,7 +1,7 @@
 model_name_or_path: "SkunkworksAI/Mistralic-7B-1"
 dataset: "HydraLM/SkunkData-Corpus-Clusters-001"
 use_auth: true
-format: "input-output"
+dataset_format: "input-output"
 logging_steps: 10
 source_max_len: 8192
 target_max_len: 8192
@@ -53,4 +53,3 @@ report_to: wandb
 #   unk_token: "<unk>"
 # tokens:
 #   - "<|im_start|>"
-#   - "<|im_end|>"
