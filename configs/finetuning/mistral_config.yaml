@@ -3,10 +3,10 @@ dataset: "HydraLM/corpus_1_clustered_formatted"
 use_auth: true
 dataset-format: "input-output"
 format: "input-output"
-logging_steps: 10
+logging_steps: 1
 source_max_len: 8192
 target_max_len: 8192
-per_device_train_batch_size: 4
+per_device_train_batch_size: 2
 gradient_accumulation_steps: 4
 learning_rate: 0.0002
 save_strategy: "steps"
