@@ -100,7 +100,7 @@ def generate_prompt(instruction, input=None):
     return prompt + "### Assistant:\n"
 
 
-def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
+def generate_output(instruction, model, alphas, tokenizer, generation_args, count = 8096):
     prompt = generate_prompt(instruction)
     inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
 
@@ -127,7 +127,7 @@ def generate_output(instruction, model, alphas, tokenizer, generation_args, coun
     return output
     
 
-def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 320):
+def generate_base_output(instruction, model, alphas, tokenizer, generation_args, count = 8096):
     prompt = generate_prompt(instruction)
     inputs = tokenizer(prompt, return_tensors="pt").to('cuda')
 
