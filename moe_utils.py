@@ -100,9 +100,7 @@ def get_inference_model(config, checkpoint_dirs):
         tokenizer.add_special_tokens({
             "eos_token": tokenizer.convert_ids_to_tokens(model.config.eos_token_id),
             "bos_token": tokenizer.convert_ids_to_tokens(model.config.bos_token_id),
-            "unk_token": tokenizer.convert_ids_to_tokens(
-                model.config.pad_token_id if model.config.pad_token_id != -1 else tokenizer.pad_token_id
-            ),
+            "unk_token": "<unk>",
         })
 
     # model = prepare_model_for_kbit_training(model, use_gradient_checkpointing=args.gradient_checkpointing)
