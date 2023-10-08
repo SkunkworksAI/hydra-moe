@@ -155,7 +155,7 @@ def inference():
         # Get user input
         instruction = input("Enter your instruction: ")
         methodIn = input("Enter your mode: transformer, centroid, combined ")
-        alphaIn = 2
+        alphaIn = input("Enter alpha: ")
         expertsK = 3
 
         #methods: combined, transformer, multi, kmeans, centroid
