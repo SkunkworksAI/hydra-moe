@@ -113,10 +113,10 @@ def get_inference_model(config, checkpoint_dirs):
             print(f"Loading Expert #{adapter_name} from {checkpoint_dir}.")
             if checkpoint == checkpoint_dirs[0]:
                 # Load the first adapter with from_pretrained
-                model = PeftModel.from_pretrained(model, checkpoint_dir, adapter_name=adapter_name, revision="alpha")
+                model = PeftModel.from_pretrained(model, checkpoint_dir, adapter_name=adapter_name)
             else:
                 # Load the remaining adapters with load_adapter
-                model.load_adapter(checkpoint_dir, adapter_name=adapter_name, revision="alpha")
+                model.load_adapter(checkpoint_dir, adapter_name=adapter_name)
     """
        
     for name, module in model.named_modules():
