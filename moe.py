@@ -62,7 +62,7 @@ def initialize_model():
     # ]
     checkpoint_dirs = [
     {
-        "adapter_dir": f"HydraLM/expert-{str(cluster)}",
+        "adapter_dir": f"HydraLM/mistralic-expert-{str(cluster)}",
         "adapter_name": f"{str(cluster)}"
     }
     for cluster in cluster_nums
