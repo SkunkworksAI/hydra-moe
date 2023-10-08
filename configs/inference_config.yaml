@@ -10,7 +10,7 @@ evaluation_strategy: "steps"
 eval_dataset_size: 1024
 max_eval_samples: 1000
 per_device_eval_batch_size: 1
-max_new_tokens: 320
+max_new_tokens: 8096
 dataloader_num_workers: 1
 group_by_length: true
 logging_strategy: "steps"
