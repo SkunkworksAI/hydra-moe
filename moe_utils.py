@@ -35,7 +35,7 @@ def get_inference_model(config, checkpoint_dirs):
     n_gpus = torch.cuda.device_count()
     # dmax_memory = f'{config.max_memory}MB'
     # max_memory = {i: max_memory for i in range(n_gpus)}
-    device_map = "auto"
+    device_map = "cuda:0"
 
     # if we are in a distributed setting, we need to set the device map and max memory per device
     if os.environ.get('LOCAL_RANK') is not None:
@@ -270,10 +270,10 @@ def select_adapter_classifier(instruction):
 
     if model_class is None:
         model_class = AutoModelForSequenceClassification.from_pretrained('HydraLM/bge-large-classifier-32')
-        model_class = model_class.to('cuda')
+        model_class = model_class.to('cuda:0')
 
     if torch.cuda.is_available():
-        model_class = model_class.to('cuda')
+        model_class = model_class.to('cuda:0')
     if tokenizer is None:
         tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-en')
 
