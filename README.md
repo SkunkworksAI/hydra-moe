@@ -19,7 +19,18 @@ Run Inference:
 python main.py --inference
 ```
 
+Run with Docker:
 
+Webui:
+```
+cp .envtemplate .env # Add HUGGINGFACE_API_TOKEN to .env or 
+docker compose up webui
+```
+
+CLI :
+```
+docker compose up cli
+```
 
 ## Description
 

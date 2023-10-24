@@ -1,4 +1,4 @@
-from utils import AttributeDict
+from model_utils import AttributeDict
 import argparse
 import os
 import subprocess
@@ -51,11 +51,25 @@ def finetuner_runner(config_file):
     print(f"Command:\n{command.split(' ')}")
     subprocess.run(command, shell=True)
 
+def webui_runner(config_file):
+    config = load_config(config_file)
+    model_name = config.model_name_or_path.split("/")[1]
+    if "/" in config.dataset:
+        dataset_name = config.dataset.split("/")[1]
+    else:
+        dataset_name = config.dataset
+    config.output_dir = f"{config.output_dir}_{model_name}_{dataset_name}"
+    command = "python server.py "
+    for key, value in vars(config).items():
+        command += f"--{key} {value} "
+    print(f"Command:\n{command.split(' ')}")
+    subprocess.run(command, shell=True)
 
 def main():
     parser = argparse.ArgumentParser(description="MoE")
     parser.add_argument("--finetune", action="store_true", help="Finetune? T/F")
     parser.add_argument("--inference", action="store_true", help="Inference? T/F")
+    parser.add_argument("--webui", action="store_true", help="Webui? T/F")
     parser.add_argument(
         "--config", type=str, required=False, help="Path to YAML config file"
     )
@@ -63,8 +77,10 @@ def main():
 
     if not args.config:
         if args.finetune:
-            config_file = "configs/default_config.yaml"
+            config_file = "configs/default_ft_config.yaml"
         elif args.inference:
+            config_file = "configs/inference_config.yaml"
+        elif args.webui:
             config_file = "configs/inference_config.yaml"
     else:
         config_file = args.config
@@ -73,6 +89,8 @@ def main():
         finetuner_runner(config_file)
     if args.inference:
         inference_runner(config_file)
+    if args.webui:
+        webui_runner(config_file)
 
 
 if __name__ == "__main__":

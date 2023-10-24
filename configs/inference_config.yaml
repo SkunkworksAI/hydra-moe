@@ -1,4 +1,4 @@
-model_name_or_path: "NousResearch/Nous-Hermes-llama-2-7b"
+model_name_or_path: "pankajmathur/orca_mini_v3_7b"
 use_auth: true
 output_dir: "./output"
 logging_steps: 10
@@ -19,7 +19,7 @@ do_train: true
 do_eval: true
 do_mmlu_eval: true
 lora_r: 64
-lora_alpha: 16
+lora_alpha: 2
 lora_modules: "all"
 double_quant: true
 quant_type: "nf4"

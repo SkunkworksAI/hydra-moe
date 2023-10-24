@@ -53,6 +53,11 @@ class DataArguments:
         default="alpaca",
         metadata={"help": "Which dataset to finetune on. See datamodule for options."},
     )
+    split: str = field(
+        default="train",
+        metadata={"help": "Which config to finetune on. See datamodule for options."},
+    )
+    
     dataset_format: Optional[str] = field(
         default=None,
         metadata={
@@ -135,7 +140,7 @@ class TrainingArguments(transformers.Seq2SeqTrainingArguments):
         },
     )
     max_steps: int = field(
-        default=10000, metadata={"help": "How many optimizer update steps to take"}
+        default=None, metadata={"help": "How many optimizer update steps to take"}
     )
     weight_decay: float = field(
         default=0.0, metadata={"help": "The L2 weight decay rate of AdamW"}
@@ -222,3 +227,4 @@ class GenerationArguments:
     repetition_penalty: Optional[float] = field(default=1.0)
     length_penalty: Optional[float] = field(default=1.0)
     no_repeat_ngram_size: Optional[int] = field(default=0)
+    truncation: Optional[bool] = field(default=True)

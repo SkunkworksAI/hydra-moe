@@ -1,0 +1,24 @@
+training_args:
+  output_dir: './bge-large-classifier-32'
+  num_train_epochs: 6
+  per_device_train_batch_size: 32
+  per_device_eval_batch_size: 32
+  warmup_ratio: 0.03
+  weight_decay: 0.01
+  logging_dir: './logs-bge-large-32'
+  logging_steps: 10
+  learning_rate: 1e-6
+  evaluation_strategy: 'steps'
+  save_steps: 1000
+  eval_steps: 1000
+  save_total_limit: 3
+  load_best_model_at_end: True
+  metric_for_best_model: "eval_loss"
+  greater_is_better: False
+  push_to_hub: True
+  hub_strategy: "all_checkpoints"
+  report_to: "wandb"
+  run_name: "bge-large-32"
+  wandb_project: "bge-large-32-classifier-HydraALPHA"
+  wandb_entity: "llama-moe"
+

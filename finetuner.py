@@ -1,7 +1,7 @@
 # This source code is licensed under the MIT license found in the
 # LICENSE file in the root directory of this source tree.
 from args import *
-from utils import *
+from model_utils import *
 from collections import defaultdict
 import copy
 import json
@@ -49,6 +49,8 @@ def train():
     training_args.generation_config = transformers.GenerationConfig(
         **vars(generation_args)
     )
+
+
     args = argparse.Namespace(
         **vars(model_args), **vars(data_args), **vars(training_args)
     )
@@ -63,6 +65,7 @@ def train():
     model.config.use_cache = False
     print("loaded model")
     set_seed(args.seed)
+
 
     data_module = make_data_module(tokenizer=tokenizer, args=args)
 

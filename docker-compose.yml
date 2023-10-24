@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  cli:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: hydra-moe:local
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./docker/run.sh"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  webui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: hydra-moe:local
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./docker/run_webui.sh"]
+    volumes:
+      - .:/code
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8001:8001"
