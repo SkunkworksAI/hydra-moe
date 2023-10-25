@@ -1,0 +1,26 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = [
+  "setuptools>=68.0",
+  "setuptools-scm",
+  "pytest",
+]
+
+[project]
+description = "hydramoe_api"
+name = "hydramoe_api"
+version = "0.1"
+dynamic = ["dependencies"]
+
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements-api.txt"] }
+
+[tool.pytest.ini_options]
+pythonpath = [
+  "hydramoe_api",
+]
+
+[tool.setuptools.packages.find]
+include = ["hydramoe_api"]  # package names should match these glob patterns (["*"] by default)
+exclude = []  # exclude packages matching these glob patterns (empty by default)
