@@ -76,8 +76,8 @@ class ChatService:
         t.start()
         for new_text in streamer:
             model_output += new_text
+            logger.info(f"Model output: {new_text}")
             yield new_text
-        return model_output
 
             
     def submit_query(self, request):
