@@ -6,6 +6,8 @@ from loguru import logger
 from pydantic import BaseModel, Field
 from typing import Any
 from threading import Event, Thread
+import hydramoe_api.schemas as Schemas
+
 
 class ChatKwargs(BaseModel):
     input_ids: Any = Field(..., description="Expert IDs for the model")
@@ -26,7 +28,7 @@ class ChatService:
     def init_model(self):
 
         self.model_service = ModelService()
-        self.model, self.tokenizer = self.model_service.get_model()
+        self.model, self.tokenizer = self.model_service.get_base_model()
 
     def convert_to_text(self, msg):
         system_prompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n"
@@ -79,7 +81,6 @@ class ChatService:
             yield new_text
 
             
-    def submit_query(self, request):
-        conversation_id = str(uuid4())
-        return self.bot(request.query, request.session_id)
+    def submit_query(self, request: Schemas.ChatRequest, request_id):
+        return self.bot(request.query, request_id)
     

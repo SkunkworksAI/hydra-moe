@@ -36,3 +36,29 @@ services:
               capabilities: [gpu]
     ports:
       - "8001:8001"
+    
+  api_server:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    image: hydramoe_api:local
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./run.sh"]
+    volumes:
+      - .:/code
+    networks:
+      - hydra-moe_default
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8000:8000"
+
+networks:
+  hydra-moe_default:
+    external: true
