@@ -2,8 +2,8 @@ datasets
 trl == 0.4.7
 scipy
 pyyaml
-bitsandbytes==0.40.0
-transformers==4.31.0
+bitsandbytes==0.41.0
+transformers==4.34.1
 peft==0.4.0
 accelerate==0.21.0
 einops==0.6.1

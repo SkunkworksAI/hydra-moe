@@ -20,7 +20,6 @@ class ChatKwargs(BaseModel):
 
 
 class ChatService:
-
     def __init__(self):
         self.init_model()
         
@@ -28,7 +27,6 @@ class ChatService:
         torch.set_default_device('cuda')
         self.model_service = ModelService()
         self.model, self.tokenizer = self.model_service.get_model()
-        self.tokenizer.bos_token_id = 1
 
     def convert_to_text(self, msg):
         system_prompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n"
