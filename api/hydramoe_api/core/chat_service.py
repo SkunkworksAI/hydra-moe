@@ -1,6 +1,7 @@
 from uuid import uuid4
 import torch
-from transformers import AutoModelForCausalLM, AutoTokenizer, TextIteratorStreamer, StoppingCriteria, StoppingCriteriaList
+from transformers import TextIteratorStreamer, StoppingCriteria, StoppingCriteriaList
+from hydramoe_api.core.model_service import ModelService
 from loguru import logger 
 from pydantic import BaseModel, Field
 from typing import Any
@@ -25,8 +26,8 @@ class ChatService:
         
     def init_model(self):
         torch.set_default_device('cuda')
-        self.model = AutoModelForCausalLM.from_pretrained("SkunkworksAI/Mistralic-7B-1")
-        self.tokenizer = AutoTokenizer.from_pretrained("SkunkworksAI/Mistralic-7B-1")
+        self.model_service = ModelService()
+        self.model, self.tokenizer = self.model_service.get_model()
         self.tokenizer.bos_token_id = 1
 
     def convert_to_text(self, msg):
