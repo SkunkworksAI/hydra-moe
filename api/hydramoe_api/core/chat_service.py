@@ -18,13 +18,13 @@ class ChatKwargs(BaseModel):
     stopping_criteria: Any = Field(..., description="Criteria for stopping the model")
     eos_token_id: int = Field(..., description="End-of-sentence token ID")
 
-
+torch.set_default_device('cuda')
 class ChatService:
     def __init__(self):
         self.init_model()
         
     def init_model(self):
-        torch.set_default_device('cuda')
+
         self.model_service = ModelService()
         self.model, self.tokenizer = self.model_service.get_model()
 
