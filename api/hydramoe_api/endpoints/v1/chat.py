@@ -11,6 +11,5 @@ router = APIRouter()
 @router.post("/chat", status_code=200)
 async def chat_endpoint(request: schemas.ChatRequest):
     chat_service = ChatService()
-    stream_response = chat_service.submit_query(request, request.session_id)
-    return StreamingResponse(stream_response, media_type="text/plain")
-
+    chat_service.start_service(request)
+    return StreamingResponse(chat_service.stream_results(), media_type="text/plain")
