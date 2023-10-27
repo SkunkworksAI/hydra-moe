@@ -17,21 +17,22 @@ RUN ln -s /usr/bin/python3 /usr/bin/python
 RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
 
 # Create app directory and change ownership to appuser
-RUN mkdir /hydramoe_api && \
+RUN mkdir /model_worker && \
     mkdir -p /home/appuser/.cache && \
-    chown -R appuser:appuser /hydramoe_api /home/appuser
-COPY ./requirements.txt /hydramoe_api/requirements.txt
-COPY ./api/requirements-api.txt /hydramoe_api/requirements-api.txt
+    chown -R appuser:appuser /model_worker /home/appuser
 RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+COPY ./requirements.txt /model_worker/requirements.txt 
+RUN --mount=type=cache,target=~/.cache/pip \
+    pip install -r /model_worker/requirements.txt
+COPY ./model_worker/requirements.txt /model_worker/requirements.txt
+RUN --mount=type=cache,target=~/.cache/pip \
+    pip install -r /model_worker/requirements.txt
 
-RUN --mount=type=cache,target=~/.cache/pip \
-    pip install -r /hydramoe_api/requirements.txt
-RUN --mount=type=cache,target=~/.cache/pip \
-    pip install -r /hydramoe_api/requirements-api.txt
 # # Set working directory to /app
 
-COPY --chown=appuser:appuser ./api /hydramoe_api
-WORKDIR /hydramoe_api
+COPY --chown=appuser:appuser ./model_worker /model_worker
+WORKDIR /model_worker
 RUN chmod +x ./run.sh
 ENTRYPOINT ["tini", "--", "bash", "./run.sh"]   
+
 

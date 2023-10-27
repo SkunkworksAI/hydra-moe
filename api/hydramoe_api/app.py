@@ -10,7 +10,6 @@ from fastapi.templating import Jinja2Templates
 from starlette.middleware.base import BaseHTTPMiddleware
 from hydramoe_api.endpoints.v1 import api_router
 from hydramoe_api.settings import settings
-
 BASE_PATH = Path(__file__).resolve().parent
 
 # Create a Jinja2Templates instance for rendering HTML templates
@@ -108,5 +107,4 @@ async def add_process_time_header(request: Request, call_next):
 # Include the routers
 app.include_router(api_router, prefix=settings.API_V1_STR)
 app.include_router(root_router)
-
 logger.info("Routers have been included in the application")

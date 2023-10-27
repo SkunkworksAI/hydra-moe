@@ -1,24 +1,13 @@
 from uuid import uuid4
 import torch
 from transformers import TextIteratorStreamer, StoppingCriteria, StoppingCriteriaList
-from hydramoe_api.core.model_service import ModelService
 from loguru import logger 
 from pydantic import BaseModel, Field
 from typing import Any
 from threading import Event, Thread
 import hydramoe_api.schemas as Schemas
+import pika 
 
-
-class ChatKwargs(BaseModel):
-    input_ids: Any = Field(..., description="Expert IDs for the model")
-    max_new_tokens: int = Field(..., description="Maximum number of new tokens to be generated")
-    temperature: float = Field(..., description="Temperature for randomness")
-    do_sample: bool = Field(..., description="Whether to do sampling or not")
-    top_p: float = Field(..., description="Top p for nucleus sampling")
-    top_k: int = Field(..., description="Top k for top-k sampling")
-    repetition_penalty: float = Field(..., description="Penalty for repeated tokens")
-    stopping_criteria: Any = Field(..., description="Criteria for stopping the model")
-    eos_token_id: int = Field(..., description="End-of-sentence token ID")
 
 torch.set_default_device('cuda')
 class ChatService:
@@ -27,8 +16,50 @@ class ChatService:
         
     def init_model(self):
 
-        self.model_service = ModelService()
-        self.model, self.tokenizer = self.model_service.get_base_model()
+        self.model, self.tokenizer = self.request_model()
+        
+    def request_model(self):
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))  # Connect to RabbitMQ
+        channel = connection.channel()
+
+        # Declare a queue for sending model requests
+        channel.queue_declare(queue='model_request_queue')
+
+        # Declare a temporary queue for receiving the model
+        result = channel.queue_declare(queue='', exclusive=True)
+        callback_queue = result.method.queue
+
+        # Generate a correlation ID
+        corr_id = str(uuid4())
+
+        # Send the request for the model
+        channel.basic_publish(
+            exchange='',
+            routing_key='model_request_queue',
+            properties=pika.BasicProperties(
+                reply_to=callback_queue,
+                correlation_id=corr_id,
+            ),
+            body='Requesting model'
+        )
+        print("Model request sent.")
+
+        # Function to handle responses
+        def on_response(ch, method, properties, body):
+            if corr_id == properties.correlation_id:
+                # Here you can deserialize the received model and set it to `self.model`
+                # For demonstration, just printing it.
+                print("Received model:", body.decode())
+                connection.close()
+
+        # Wait for a response
+        channel.basic_consume(
+            queue=callback_queue,
+            on_message_callback=on_response,
+            auto_ack=True
+        )
+        print('Waiting for model...')
+        channel.start_consuming()
 
     def convert_to_text(self, msg):
         system_prompt = "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n\n"

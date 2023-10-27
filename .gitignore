@@ -22,3 +22,4 @@ gating_v2/
 gating_v1/
 
 *.egg-info
+models/*
