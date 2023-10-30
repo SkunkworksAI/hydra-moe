@@ -4,6 +4,7 @@ import pika
 import torch
 from loguru import logger
 from uuid import uuid4
+from threading import Event
 
 class ModelWorker:
     _instance = None
@@ -26,13 +27,21 @@ class ModelWorker:
         torch.set_default_device('cuda')
         self.init_base_model(config)
 
-    def publish_to_stream(self, channel, message):
+    def publish_to_stream(self, channel, message, stream_complete):
         logger.info(f"Publishing stream: {message}" )
         channel.basic_publish(
             exchange='',
             routing_key='inference_results_stream',
             body=message
         )
+        if stream_complete.is_set():
+            logger.info(f"Ending stream:  STREAM_COMPLETE" )
+
+            channel.basic_publish(
+                exchange='',
+                routing_key='inference_results_stream',
+                body="STREAM_COMPLETE"
+            )
 
     def listen_for_inference_requests(self):
         connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
@@ -51,16 +60,17 @@ class ModelWorker:
         )
         channel.basic_qos(prefetch_count=1000)
 
+
         def on_inference_request(ch, method, properties, body):
             message = body.decode()
+            # stream_complete = Event() 
             self.inference_strategy.perform_inference(
                 message,
                 "some_conversation_id",
                 self.base_model,
                 self.base_tokenizer,
-                lambda msg: self.publish_to_stream(ch, msg)
+                lambda msg, stream_complete: self.publish_to_stream(ch, msg, stream_complete)
             )
-
         channel.basic_consume(
             queue='inference_requests_stream',
             on_message_callback=on_inference_request
