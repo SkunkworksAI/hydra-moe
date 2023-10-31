@@ -67,13 +67,7 @@ class ChatService:
             arguments={"x-queue-type": "stream"},
         )
 
-        message = json.dumps(
-            {
-                "query": request.query,
-                "session_id": session_id,
-                "max_tokens": request.max_tokens,
-            }
-        )
+        message = json.dumps(request.dict())
         channel.basic_publish(
             exchange="", routing_key="inference_requests_stream", body=message
         )

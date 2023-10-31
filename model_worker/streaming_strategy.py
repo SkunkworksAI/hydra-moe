@@ -5,16 +5,20 @@ from loguru import logger
 from inference_strategy import InferenceStrategy
 from typing import Callable
 
+
 class CompletionStreamingStrategy(InferenceStrategy):
     """CompletionStreamingStrategy is an implementation of the InferenceStrategy for streaming-based inference.
 
     This strategy uses a thread to perform the generation task asynchronously and an Event to signal
     the completion of the streaming. It utilizes a specific stopping criterion and a text streamer.
     """
+
     class StopOnTokens(StoppingCriteria):
         """Inner class for defining custom stopping criteria based on token IDs."""
-        
-        def __call__(self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs) -> bool:
+
+        def __call__(
+            self, input_ids: torch.LongTensor, scores: torch.FloatTensor, **kwargs
+        ) -> bool:
             """Stop the generation if any of the stop_token_ids are found.
             Args:
                 input_ids (torch.LongTensor): Tensor of token IDs.
@@ -41,9 +45,21 @@ class CompletionStreamingStrategy(InferenceStrategy):
         text += "### Response:\n"
         return text
 
-    def perform_inference(self, message: str, conversation_id: str, model, tokenizer: Callable, publish_function: Callable, max_new_tokens: int) -> None:
+    def perform_inference(
+        self,
+        message: str,
+        conversation_id: str,
+        model,
+        tokenizer: Callable,
+        publish_function: Callable,
+        max_new_tokens: int,
+        temperature: float,
+        top_p: float,
+        top_k: float,
+        repetition_penalty: float,
+    ) -> None:
         """Perform the inference operation using a streaming strategy.
-        
+
         Args:
             message (str): The message to be processed.
             conversation_id (str): The ID of the conversation.
@@ -52,19 +68,16 @@ class CompletionStreamingStrategy(InferenceStrategy):
             publish_function (Callable): Function to publish the model output.
         """
         stop = self.StopOnTokens()
-        
+
         messages = self.convert_to_text(message)
-        
+
         input_ids = tokenizer(messages, return_tensors="pt").input_ids
         input_ids = input_ids.to(model.device)
-        
-        temperature = 0.01
-        top_p = 0.9
-        top_k = 0
-        repetition_penalty = 1.1
-        
-        streamer = TextIteratorStreamer(tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True)
-        
+
+        streamer = TextIteratorStreamer(
+            tokenizer, timeout=10.0, skip_prompt=True, skip_special_tokens=True
+        )
+
         generate_kwargs = dict(
             input_ids=input_ids,
             max_new_tokens=max_new_tokens,
@@ -76,27 +89,25 @@ class CompletionStreamingStrategy(InferenceStrategy):
             streamer=streamer,
             stopping_criteria=StoppingCriteriaList([stop]),
             eos_token_id=tokenizer.eos_token_id,
-            pad_token_id=tokenizer.eos_token_id
+            pad_token_id=tokenizer.eos_token_id,
         )
         logger.info(f"Inference inputs : {generate_kwargs}")
-        model_output =  ""
-        
+        model_output = ""
+
         stream_complete = Event()
 
         def generate_and_signal_complete():
             model.generate(**generate_kwargs)
             stream_complete.set()
 
-
         t = Thread(target=generate_and_signal_complete)
         # t = Thread(target=model.generate, kwargs=generate_kwargs)
 
         t.start()
         # t.join()
-        
+
         # Listen for new tokens and publish
         for new_text in streamer:
             model_output += new_text
             logger.info(f"Model output: {new_text}")
-            publish_function(new_text, stream_complete)  
-            
+            publish_function(new_text, stream_complete)

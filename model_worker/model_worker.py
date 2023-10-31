@@ -127,6 +127,8 @@ class ModelWorker:
             message = data["query"]
             session_id = data["session_id"]
             max_tokens = data['max_tokens']
+
+            
             self.inference_strategy.perform_inference(
                 message,
                 session_id,
@@ -135,7 +137,11 @@ class ModelWorker:
                 lambda msg, stream_complete: self.publish_to_stream(
                     ch, msg, stream_complete, session_id
                 ),  
-                max_tokens
+                max_tokens,
+                temperature=data['temperature'],
+                top_p=data['top_p'],
+                top_k=data['top_k'],
+                repetition_penalty=data['repetition_penalty']
             )
             ch.basic_ack(delivery_tag=method.delivery_tag)
 
