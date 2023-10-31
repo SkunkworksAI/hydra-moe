@@ -20,19 +20,19 @@ class ModelWorker:
 
     _instance = None
 
-    def __new__(cls, inference_strategy, config: Config.ModelConfig = None) -> 'ModelWorker':
+    def __new__(cls, inference_strategy, config_path: str = None) -> 'ModelWorker':
         """Create a new instance or return the existing instance."""
         if cls._instance is None:
             logger.info("Initializing Model Worker")
             
             # If config is None, try to load it from YAML
-            if config is None:
-                yaml_path = '/configs/inference_config.yaml'
+            if config_path is None:
+                config_path = '/configs/inference_config.yaml'
                 
-                if Path(yaml_path).exists():
-                    config: Config.ModelConfig = Config.build_model_config_from_yaml(yaml_path)
+                if Path(config_path).exists():
+                    config: Config.ModelConfig = Config.build_model_config_from_yaml(config_path)
                 else:
-                    raise FileNotFoundError(f"Could not find the configuration YAML file at {yaml_path}. Please ensure the file exists.")
+                    raise FileNotFoundError(f"Could not find the configuration YAML file at {config_path}. Please ensure the file exists.")
             
             cls._instance = super(ModelWorker, cls).__new__(cls)
             cls._instance.init_models(config)
