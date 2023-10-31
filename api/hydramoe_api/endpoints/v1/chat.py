@@ -8,8 +8,8 @@ from hydramoe_api.core.chat_service import ChatService
 from hydramoe_api import schemas
 from http import HTTPStatus
 from typing import AsyncGenerator, Dict, List, Optional, Tuple, Union
-
 router = APIRouter()
+
 
 # try:
 #     import fastchat
@@ -118,16 +118,6 @@ async def check_length(
     else:
         return input_ids, None
 
-@router.post("/v1/models")
-async def show_available_models():
-    """Show available models. Right now we only have one model."""
-    model_cards = [
-         schemas.ModelCard(id=served_model,
-                  root=served_model,
-                  permission=[schemas.ModelPermission()])
-    ]
-    return schemas.ModelList(data=model_cards)
-
 
 # def create_logprobs(token_ids: List[int],
 #                     id_logprobs: List[Dict[int, float]],
@@ -152,12 +142,6 @@ async def show_available_models():
 #         })
 #     return logprobs
 
-
-
-
-
-
-
 @router.post("/chat", status_code=200)
 async def chat_endpoint(request: schemas.ChatRequest):
     try:
@@ -167,8 +151,6 @@ async def chat_endpoint(request: schemas.ChatRequest):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
-
-
 
 
 

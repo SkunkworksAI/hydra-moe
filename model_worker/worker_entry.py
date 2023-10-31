@@ -13,4 +13,4 @@ HTTPConnection.default_socket_options = (
 if __name__ == "__main__":
     logger.info("Initializing Model Worker...")
     model_worker = ModelWorker(CompletionStreamingStrategy())
-    model_worker.listen_for_inference_requests()
+    model_worker.start_listeners()

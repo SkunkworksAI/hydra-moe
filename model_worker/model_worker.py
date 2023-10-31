@@ -9,7 +9,7 @@ from uuid import uuid4
 from threading import Event
 from pathlib import Path
 import json
-
+from threading import Thread
 
 class ModelWorker:
     """Singleton class to manage language model and RabbitMQ interactions for inference.
@@ -40,10 +40,18 @@ class ModelWorker:
             logger.info("ModelWorker Initialized")
         return cls._instance
 
+    def start_listeners(self):
+            """Start threads to listen for both inference and info requests."""
+            # Thread for inference requests
+            inference_thread = Thread(target=self.listen_for_inference_requests)
+            inference_thread.start()
 
+            # Thread for info requests
+            info_thread = Thread(target=self.listen_for_info_requests)
+            info_thread.start()
 
-
-
+            # Optionally, you can add logging to confirm that the threads have started
+            logger.info("Started threads for listening to inference and info requests.")
 
     def init_base_model(self, config: Config.ModelConfig) -> None:
         """Initialize the base language model and tokenizer.
@@ -66,6 +74,8 @@ class ModelWorker:
             resume_download=True,
         )
         self.base_tokenizer.bos_token_id = 1
+        self.config = config
+
 
     def init_models(self, config):
         torch.set_default_device("cuda")
@@ -131,6 +141,71 @@ class ModelWorker:
             on_message_callback=on_inference_request,
             auto_ack=False,
         )
-
+        self.publish_model_info(channel)
         logger.info("Waiting for inference requests...")
+        channel.start_consuming()
+
+    def publish_model_info(self, channel) -> None:
+        """Publish model info to a RabbitMQ stream."""
+        channel.queue_declare(
+            queue="model_info",
+            durable=True,
+        )
+        
+        logger.info(self.base_model.config)
+        base_model_config = self.base_model.config.to_dict() 
+
+        model_info = {
+            "model_path": self.config.base_model_path,
+            "tokenizer_name": self.base_tokenizer.__class__.__name__,
+            "max_new_tokens": self.config.max_new_tokens,
+            "lora_alpha": self.config.lora_alpha,
+            "model_kind": self.base_model.config.model_type,
+            "architectures": base_model_config.get("architectures"),
+            "bos_token_id": base_model_config.get("bos_token_id"),
+            "eos_token_id": base_model_config.get("eos_token_id"),
+            "hidden_act": base_model_config.get("hidden_act"),
+            "hidden_size": base_model_config.get("hidden_size"),
+            "initializer_range": base_model_config.get("initializer_range"),
+            "intermediate_size": base_model_config.get("intermediate_size"),
+            "max_position_embeddings": base_model_config.get("max_position_embeddings"),
+            "num_attention_heads": base_model_config.get("num_attention_heads"),
+            "num_hidden_layers": base_model_config.get("num_hidden_layers"),
+            "num_key_value_heads": base_model_config.get("num_key_value_heads"),
+            "rms_norm_eps": base_model_config.get("rms_norm_eps"),
+            "rope_theta": base_model_config.get("rope_theta"),
+            "sliding_window": base_model_config.get("sliding_window"),
+            "tie_word_embeddings": base_model_config.get("tie_word_embeddings"),
+            "torch_dtype": base_model_config.get("torch_dtype"),
+            "transformers_version": base_model_config.get("transformers_version"),
+            "use_cache": base_model_config.get("use_cache"),
+            "vocab_size": base_model_config.get("vocab_size")
+        }
+        model_info_json = json.dumps(model_info)
+        channel.basic_publish(
+            exchange="", routing_key="model_info", body=model_info_json
+        )
+        logger.info(f"Published model info: {model_info}")
+        
+    def listen_for_info_requests(self):
+        connection = pika.BlockingConnection(pika.ConnectionParameters('rabbitmq'))
+        channel = connection.channel()
+
+        channel.queue_declare(
+            queue='model_info_requests',
+            durable=True
+        )
+
+        def on_request(ch, method, properties, body):
+            # Assuming you publish the model info using the existing `publish_model_info` method
+            self.publish_model_info(channel)
+            ch.basic_ack(delivery_tag=method.delivery_tag)
+
+        channel.basic_consume(
+            queue='model_info_requests',
+            on_message_callback=on_request,
+            auto_ack=False
+        )
+
+        logger.info("Waiting for model info requests...")
         channel.start_consuming()
