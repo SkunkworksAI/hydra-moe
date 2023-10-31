@@ -7,7 +7,6 @@ serialization and deserialization.
 from pydantic import BaseModel, Field
 from typing import List, Optional
 
-MODEL_MAX_TOKENS = 8096 
 
 class ChatBase(BaseModel):
     """
@@ -26,7 +25,7 @@ class ChatRequest(BaseModel):
     api_key: str
     model: str
     temperature: float
-    max_tokens: Optional[int] = Field(16, le=MODEL_MAX_TOKENS) 
+    max_tokens: Optional[int] = Field(default=16, gt=0) 
 
 
 class ChatPair(BaseModel):

@@ -123,8 +123,10 @@ class ModelWorker:
 
         def on_inference_request(ch: BlockingChannel, method: Basic.Deliver, properties: BasicProperties, body: bytes) -> None:
             data = json.loads(body.decode())
+            logger.info(f"Received inference request: {data}")
             message = data["query"]
             session_id = data["session_id"]
+            max_tokens = data['max_tokens']
             self.inference_strategy.perform_inference(
                 message,
                 session_id,
@@ -132,7 +134,8 @@ class ModelWorker:
                 self.base_tokenizer,
                 lambda msg, stream_complete: self.publish_to_stream(
                     ch, msg, stream_complete, session_id
-                ),  # Pass the session_id to publish_to_stream
+                ),  
+                max_tokens
             )
             ch.basic_ack(delivery_tag=method.delivery_tag)
 

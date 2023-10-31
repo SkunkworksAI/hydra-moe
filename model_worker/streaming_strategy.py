@@ -41,13 +41,13 @@ class CompletionStreamingStrategy(InferenceStrategy):
         text += "### Response:\n"
         return text
 
-    def perform_inference(self, message: str, conversation_id: str, model: torch.nn.Module, tokenizer: Callable, publish_function: Callable) -> None:
+    def perform_inference(self, message: str, conversation_id: str, model, tokenizer: Callable, publish_function: Callable, max_new_tokens: int) -> None:
         """Perform the inference operation using a streaming strategy.
         
         Args:
             message (str): The message to be processed.
             conversation_id (str): The ID of the conversation.
-            model (torch.nn.Module): The language model.
+            model (AutoModel): The language model.
             tokenizer (Callable): The tokenizer function.
             publish_function (Callable): Function to publish the model output.
         """
@@ -58,7 +58,6 @@ class CompletionStreamingStrategy(InferenceStrategy):
         input_ids = tokenizer(messages, return_tensors="pt").input_ids
         input_ids = input_ids.to(model.device)
         
-        max_new_tokens = 1536  
         temperature = 0.01
         top_p = 0.9
         top_k = 0
@@ -79,7 +78,7 @@ class CompletionStreamingStrategy(InferenceStrategy):
             eos_token_id=tokenizer.eos_token_id,
             pad_token_id=tokenizer.eos_token_id
         )
-
+        logger.info(f"Inference inputs : {generate_kwargs}")
         model_output =  ""
         
         stream_complete = Event()
