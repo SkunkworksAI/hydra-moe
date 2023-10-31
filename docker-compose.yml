@@ -72,6 +72,7 @@ services:
     volumes:
       - ./api:/code
       - ./models:/models:rwx
+      - ./configs:/configs:r
     networks:
       - hydra-moe_default
     depends_on:
