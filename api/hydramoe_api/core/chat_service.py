@@ -106,7 +106,8 @@ class ChatService:
                         response = Schemas.ChatCompletionStreamResponse(
                             model="model_name", choices=[choice]
                         )
-                        yield response.json()
+                        yield f"data: {response.json()}\n\n"
                     if result == "STREAM_COMPLETE":
+                        yield f"data: [DONE]\n\n"
                         logger.info("STREAM BREAKING")
                         break
