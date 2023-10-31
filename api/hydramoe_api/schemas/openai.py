@@ -10,6 +10,7 @@ import uuid
 def random_uuid() -> str:
     return str(uuid.uuid4().hex)
 
+MODEL_MAX_TOKENS = 8096 # Mistralic 7B Max Tokens
 
 class ErrorResponse(BaseModel):
     object: str = "error"
@@ -61,7 +62,7 @@ class ChatCompletionRequest(BaseModel):
     temperature: Optional[float] = 0.7
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1
-    max_tokens: Optional[int] = None
+    max_tokens: Optional[int] = Field(16, le=MODEL_MAX_TOKENS)  
     stop: Optional[Union[str, List[str]]] = Field(default_factory=list)
     stream: Optional[bool] = False
     presence_penalty: Optional[float] = 0.0
@@ -84,7 +85,7 @@ class CompletionRequest(BaseModel):
     # a string, array of strings, array of tokens, or array of token arrays
     prompt: Union[List[int], List[List[int]], str, List[str]]
     suffix: Optional[str] = None
-    max_tokens: Optional[int] = 16
+    max_tokens: Optional[int] = Field(16, le=MODEL_MAX_TOKENS)  # Add le constraint here
     temperature: Optional[float] = 1.0
     top_p: Optional[float] = 1.0
     n: Optional[int] = 1

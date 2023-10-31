@@ -20,7 +20,7 @@ router = APIRouter()
 #     _fastchat_available = False
 
 TIMEOUT_KEEP_ALIVE = 5  # seconds
-
+max_model_length = 8096 # mistralic max model len
 served_model = None
 engine = None
 
