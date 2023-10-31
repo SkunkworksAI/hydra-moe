@@ -1,10 +1,11 @@
 # Adapted from
 # https://github.com/lm-sys/FastChat/blob/168ccc29d3f7edc50823016105c024fe2282732a/fastchat/protocol/openai_api_protocol.py
 import time
-import uuid
 from typing import Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
+
+import uuid
 
 def random_uuid() -> str:
     return str(uuid.uuid4().hex)
@@ -37,7 +38,7 @@ class ModelCard(BaseModel):
     id: str
     object: str = "model"
     created: int = Field(default_factory=lambda: int(time.time()))
-    owned_by: str = "hydramoe"
+    owned_by: str = "vllm"
     root: Optional[str] = None
     parent: Optional[str] = None
     permission: List[ModelPermission] = Field(default_factory=list)
@@ -67,6 +68,15 @@ class ChatCompletionRequest(BaseModel):
     frequency_penalty: Optional[float] = 0.0
     logit_bias: Optional[Dict[str, float]] = None
     user: Optional[str] = None
+    api_key: Optional[str] = None
+
+    # # Additional parameters supported by vLLM
+    best_of: Optional[int] = None
+    top_k: Optional[int] = -1
+    ignore_eos: Optional[bool] = False
+    use_beam_search: Optional[bool] = False
+    stop_token_ids: Optional[List[int]] = Field(default_factory=list)
+    skip_special_tokens: Optional[bool] = True
 
 
 class CompletionRequest(BaseModel):
@@ -87,6 +97,13 @@ class CompletionRequest(BaseModel):
     best_of: Optional[int] = None
     logit_bias: Optional[Dict[str, float]] = None
     user: Optional[str] = None
+    # Additional parameters supported by vLLM
+    api_key: Optional[str] = None
+    top_k: Optional[int] = -1
+    ignore_eos: Optional[bool] = False
+    use_beam_search: Optional[bool] = False
+    stop_token_ids: Optional[List[int]] = Field(default_factory=list)
+    skip_special_tokens: Optional[bool] = True
 
 
 class LogProbs(BaseModel):

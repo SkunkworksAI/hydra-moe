@@ -22,6 +22,7 @@ class ChatBase(BaseModel):
 class ChatRequest(BaseModel):
     query: str
     session_id: str
+    api_key: str
     model: str
     temperature: float
     max_tokens: int
