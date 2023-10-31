@@ -1,10 +1,12 @@
 import httpx
 import json
 from typing import Dict, List, Literal, Optional, Union
-
+import time
 from pydantic import BaseModel, Field
-
-
+import uuid 
+import re 
+def random_uuid() -> str:
+    return str(uuid.uuid4().hex)
 
 url = 'http://127.0.0.1:8000/api/v1/chat/completions'
 
@@ -66,6 +68,10 @@ while True:
             for chunk in response.iter_text():
                 # print(f"Chunk: {chunk}")  # Debug line
                 if chunk:  # Check if chunk is not empty
+                    try: 
+                        chunk = re.sub('^data: ', '', chunk)
+                    except:
+                        pass
                     response_obj = ChatCompletionStreamResponse.parse_raw(chunk)
                     for choice in response_obj.choices:
                         print(choice.delta.content, end='', flush=True)
