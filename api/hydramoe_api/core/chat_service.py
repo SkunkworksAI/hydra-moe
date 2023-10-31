@@ -38,7 +38,7 @@ class ChatService:
                 self.last_received_time = time.time()
                 self.buffer.append((token, session_id))
             except:
-                logger.info("ERROR")
+                logger.warning(f"ERROR: {data}")
                 pass
 
         channel.basic_consume(

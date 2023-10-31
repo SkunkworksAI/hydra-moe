@@ -10,6 +10,7 @@ from threading import Event
 from pathlib import Path
 import json
 from threading import Thread
+from tokenizer import check_length
 
 class ModelWorker:
     """Singleton class to manage language model and RabbitMQ interactions for inference.
@@ -128,7 +129,18 @@ class ModelWorker:
             session_id = data["session_id"]
             max_tokens = data['max_tokens']
 
-            
+            error_response = check_length(self.base_tokenizer, max_tokens, self.config.max_new_tokens, message)
+
+            if error_response:
+                # Publish the error to the stream
+                error_message = error_response.get('message', 'An unknown error occurred.')
+                error_json = json.dumps({"error": error_message})
+                ch.basic_publish(
+                    exchange="", routing_key="inference_results_stream", body=error_json
+                )
+                ch.basic_ack(delivery_tag=method.delivery_tag)
+                return
+
             self.inference_strategy.perform_inference(
                 message,
                 session_id,

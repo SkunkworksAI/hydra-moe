@@ -1,33 +1,41 @@
-from typing import Optional, Tuple, List, JSONResponse
+from typing import Optional, Tuple, List
+from http import HTTPStatus
+from pydantic import BaseModel
+from loguru import logger 
 
+class ErrorResponse(BaseModel):
+    object: str = "error"
+    message: str
+    type: str
+    param: Optional[str] = None
+    code: Optional[str] = None
 
-async def check_length(
-    request, 
-    prompt: Optional[str] = None,
-    prompt_ids: Optional[List[int]] = None, 
-    tokenizer, 
-    max_model_len: int
+def create_error_response(status_code: HTTPStatus,
+                          message: str) -> ErrorResponse:
+    return ErrorResponse(message=message,type="invalid_request_error").model_dump()
+
+def check_length(
+    tokenizer,
+    max_new_tokens: int, 
+    max_model_len: int,
+    prompt: str,
+) -> ErrorResponse:
     
-) -> Tuple[List[int], Optional[JSONResponse]]:
-    assert (not (prompt is None and prompt_ids is None)
-            and not (prompt is not None and prompt_ids is not None)
-            ), "Either prompt or prompt_ids should be provided."
-    if prompt_ids is not None:
-        input_ids = prompt_ids
-    else:
-        input_ids = tokenizer(prompt).input_ids
+    input_ids = tokenizer(prompt).input_ids
     token_num = len(input_ids)
-
-    if request.max_tokens is None:
-        request.max_tokens = max_model_len - token_num
-    if token_num + request.max_tokens > max_model_len:
-        return input_ids, create_error_response(
+    logger.info(f"Prompt: {prompt}")
+    logger.info(f"Token num: {token_num}")
+    logger.info(f"Max new tokens: {max_new_tokens}")
+    logger.info(f"Max model len: {max_model_len}")
+    if token_num + max_new_tokens > max_model_len:
+        logger.warning("Token input and max_new_tokens exceed max_model_len")
+        return create_error_response(
             HTTPStatus.BAD_REQUEST,
-            f"This model's maximum context length is {max_model_len} tokens. "
-            f"However, you requested {request.max_tokens + token_num} tokens "
-            f"({token_num} in the messages, "
-            f"{request.max_tokens} in the completion). "
-            f"Please reduce the length of the messages or completion.",
+            f"""This model's maximum context length is {max_model_len} tokens. "
+            However, you requested {max_new_tokens + token_num} tokens 
+            ({token_num} in the messages, 
+            {max_new_tokens} in the completion). 
+            Please reduce the length of the messages or completion."""
         )
     else:
-        return input_ids, None
+        return None
