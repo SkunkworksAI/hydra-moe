@@ -181,9 +181,15 @@ async def handle_chat_completion_request(request:schemas.ChatCompletionRequest):
 
         # Send converted request in appropriate format. 
         chat_service.start_service(chat_request)
-
         # Make a new stream_results which does it in the ChatResponse format
-        return StreamingResponse(chat_service.stream_results_oai(request.user), media_type="text/plain")
+        response = chat_service.stream_results_oai(request.user)
+
+        # Check if the response is empty
+        if not response:
+            # If it's empty, send a default message
+            response = "Sorry, I couldn't find an answer to your request."
+
+        return StreamingResponse(response, media_type="text/plain")
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise
