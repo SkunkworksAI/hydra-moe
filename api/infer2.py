@@ -8,7 +8,7 @@ import re
 def random_uuid() -> str:
     return str(uuid.uuid4().hex)
 
-url = 'https://127.0.0.1:443/api/v1/chat/completions'
+url = 'http://127.0.0.1:8000/api/v1/chat/completions'
 
 headers = {
     'accept': 'application/json',
@@ -72,16 +72,13 @@ while True:
                         chunk = re.sub('^data: ', '', chunk)
                     except:
                         pass
-                    try:
-                         response_obj = ChatCompletionStreamResponse.parse_raw(chunk)
-                    except:
-                        pass
+                    response_obj = ChatCompletionStreamResponse.parse_raw(chunk)
                     for choice in response_obj.choices:
                         print(choice.delta.content, end='', flush=True)
                         bot += choice.delta.content
 
                 else:
-                    pass# print("Received an empty chunk.")
+                    print("Received an empty chunk.")
         else:
             print(f"Failed: {response.status_code}")
     messages.append({"role": "bot", "content": bot})

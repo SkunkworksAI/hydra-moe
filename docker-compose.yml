@@ -1,18 +1,32 @@
 version: '3.8'
 
 services:
-  api_server:
+  cli:
     build:
       context: .
-      dockerfile: api/Dockerfile
-    image: hydramoe_api2:local2
+      dockerfile: docker/Dockerfile
+    image: hydra-moe:local
     environment:
       - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
-    entrypoint: ["tini", "--", "bash", "./run.sh"]
+    entrypoint: ["tini", "--", "bash", "./docker/run.sh"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+
+  webui:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: hydra-moe:local
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./docker/run_webui.sh"]
     volumes:
-      - ./api:/code
-    networks:
-      - hydra-moe_default2
+      - .:/code
     deploy:
       resources:
         reservations:
@@ -21,9 +35,71 @@ services:
               count: 1
               capabilities: [gpu]
     ports:
-      - "443:443"
+      - "8001:8001"
+    
+  api_server:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    image: hydramoe_api:local
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./run.sh"]
+    volumes:
+      - ./api:/code
+    networks:
+      - hydra-moe_default
+    depends_on:
+      - model_worker
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8000:8000"
 
+  model_worker:
+    build:
+      context: .
+      dockerfile: model_worker/Dockerfile
+    image: model_worker:latest
+    environment:
+      - HUGGINGFACE_API_TOKEN=${HUGGINGFACE_API_TOKEN}
+    entrypoint: ["tini", "--", "bash", "./run.sh"]
+    volumes:
+      - ./api:/code
+      - ./models:/models:rwx
+      - ./configs:/configs:r
+    networks:
+      - hydra-moe_default
+    depends_on:
+      - rabbitmq
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - "8100:8100"
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - hydra-moe_default
+
+    
 
 networks:
-  hydra-moe_default2:
+  hydra-moe_default:
     external: false

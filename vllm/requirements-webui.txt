@@ -1,0 +1,4 @@
+gradio
+httpx
+fschat
+python-dotenv
