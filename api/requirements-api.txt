@@ -1,0 +1,10 @@
+uvicorn
+fastapi
+pydantic[email]
+pydantic-settings
+Jinja2
+gunicorn
+tenacity
+tiktoken
+loguru
+pika

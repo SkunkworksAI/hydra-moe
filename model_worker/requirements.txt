@@ -1,0 +1,6 @@
+pika
+torch
+loguru
+transformers
+accelerate
+sentencepiece

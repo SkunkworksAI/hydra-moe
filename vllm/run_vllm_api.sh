@@ -1,0 +1,1 @@
+python -m vllm.entrypoints.api_server --model SkunkworksAI/Mistralic-7B-1
